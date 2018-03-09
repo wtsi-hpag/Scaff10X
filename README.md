@@ -2,13 +2,14 @@
 Pipeline for scaffolding and breaking a genome assembly using 10x genomics linked-reads
 
 Pipeline steps:
-
-    1 Barcoded tags are extracted from 10Xg raw sequencing reads and appended to read names for further processing
-    2 The reads are mapped to the draft assembly using either BWA or SMALT
-    3 Barcodes are sorted together with contigs as well as mapping coordinates
-    4 A relation matrix is built to record the shared barcodes among the contigs which may be linked
-    5 Order and orientation of linked contigs are determined after nearest neighbours are found. 
-
+        
+    Scaffolding with scaff10x:
+      1 Barcoded tags are extracted from 10Xg raw sequencing reads and appended to read names for further processing
+      2 The reads are mapped to the draft assembly using either BWA or SMALT
+      3 Barcodes are sorted together with contigs as well as mapping coordinates
+      4 A relation matrix is built to record the shared barcodes among the contigs which may be linked
+      5 Order and orientation of linked contigs are determined after nearest neighbours are found. 
+    Breaking with break10x:
 
 ### Download and Compile:
 Requirements for compiling: gcc
@@ -31,10 +32,11 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
            $ /full/path/to/Scaff10X/src/scaff10X -nodes <nodes> -align <aligner> -score <score> \
 	   	-matrix <matrix_size> -reads <min_reads> -longread <aggressive> -gap <gap_size> \
 		-edge <edge_len> -link <n_links> -block <block>  \
+		[ -sam input.sam ] \
 		draft-asssembly.fasta read-BC_1.fastq read-BC_2.fastq output_scaffolds.fasta
            
 
-	       parameters:
+	       Parameters:
              nodes:    number of CPUs requested  [ default = 30 ]
              score: averaged mapping score on each barcode fragment [ default = 20 ]
              aligner:  sequence aligner: bwa or smalt [ default = bwa ]
@@ -46,3 +48,10 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 	     		       0 - no aggressive for short read assembly  [ default = 1 ]
              block:    length to determine for nearest neighbours [ default = 2500 ]
              gap:     gap size in building scaffold [ default = 100 ]
+	     
+	       Files
+	        input.sam:   input a sam file if it already exists, and skip the mapping (Optional, please provde full path)
+	        draft-asssembly.fasta:   initial draft assembly to scaffold (full path or local)
+	        read-BC_1.fastq read-BC_2.fastq:  10Xg reads with barcode appended to read names (full path or local)
+	        output_scaffolds.fasta:   name for the output scaffolded assembly (local)
+	     
