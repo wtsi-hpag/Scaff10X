@@ -45,10 +45,10 @@ This is to avoid using scaff_BC-reads-1 and scaff_BC-reads-2 on files with too m
 
 #### Run scaff10x:
            $ /full/path/to/Scaff10X/src/scaff10X -nodes <nodes> -align <aligner> -score <score> \
-	   	-matrix <matrix_size> -reads <min_reads> -longread <aggressive> -gap <gap_size> \
-		-edge <edge_len> -link <n_links> -block <block>  \
-		[ -sam input.sam ] \
-		draft-asssembly.fasta read-BC_1.fastq read-BC_2.fastq output_scaffolds.fasta
+	   	 -matrix <matrix_size> -reads <min_reads> -longread <aggressive> -gap <gap_size> \
+		 -edge <edge_len> -link <n_links> -block <block>  \
+		 [ -sam input.sam ] \
+		 draft-asssembly.fasta read-BC_1.fastq read-BC_2.fastq output_scaffolds.fasta
            
 
 	       Parameters:
