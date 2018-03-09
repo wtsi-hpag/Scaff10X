@@ -1,5 +1,5 @@
 # Scaff10X
-Pipeline for scaffolding and breaking a genome assembly using 10x genomics linked-reads
+Pipeline for scaffolding and breaking a genome assembly using 10x genomics linked-reads.
 
 Pipeline steps:
         
@@ -106,3 +106,26 @@ Some notes and suggestions:
 		   means (different length from scaff10x gap added), it will not be broken as the 
 		   gap could be very big and 10X barcodes might not cross over. [ default = 100 ]
         
+##### break10x output
+The command break10x will output the assembly after scaffold breaking (scaffolds-break.fasta) and
+the list of breaking points.
+
+The list of breaking point  in scaffolds-break.name has the format:
+
+	Break2: Scaffold_name  Scaffold_index  Position Scaffold_Length Minimum_Coverage Average_Coverage  Gap_Length
+	
+	Scaffold_name   name of scaffold broken by break10x
+	Scaffold_index  index of scaffold broken by break10x
+	Position        Break-point position
+	Scaffold_length  length of scaffold
+	Minimum_Coverage  minimum barcode coverage in the breakpoint region
+	Average_Coverage  scaffold average barcode coverage
+	Gap_Length        gap length ( 0 indicates a contig break)
+
+Example:
+	
+	Break2: Scaff10x_0 0 1527414 15892392 1 114 100
+	Break2: Scaff10x_0 0 7246257 15892392 0 114 100
+	Break2: Scaff10x_2 2 17232850 17798733 21 176 100
+	Break2: Scaff10x_9 9 3709193 3904076 37 451 100
+	Break1: Scaff10x_10 10 3713358 5150262 0 131 0
