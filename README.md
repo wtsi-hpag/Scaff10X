@@ -28,8 +28,20 @@ If everything compiled successfully you must see the final comment:
 #### External packages
 The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sanger.ac.uk/science/tools/smalt-0) are downloaded and compiled by Scaff10X.
 
+#### Prepare the fastq files:
 
-#### Run:
+	$ /full/path/to/Scaff10X/src/scaff_BC-reads-1 read_1.fastq read-BC_1.fastq read-BC_1.name 
+	$ /full/path/to/Scaff10X/src/scaff_BC-reads-2 read-BC_1.name read_2.fastq read-BC_2.fastq 
+	
+	where:
+		read_1.fastq and read_2.fastq:   the raw 10Xg read fastq files
+		read-BC_1.fastq and read-BC_2.fastq: the output fastq files to use with scaff10x/break10x.
+
+Warning: for multiple runs prepare a read-BC_1.fastq and read-BC_2.fastq pair for each run and then cat them together.
+This is to avoid using scaff_BC-reads-1 and scaff_BC-reads-2 on files with too many reads.
+		
+
+#### Run scaff10x:
            $ /full/path/to/Scaff10X/src/scaff10X -nodes <nodes> -align <aligner> -score <score> \
 	   	-matrix <matrix_size> -reads <min_reads> -longread <aggressive> -gap <gap_size> \
 		-edge <edge_len> -link <n_links> -block <block>  \
@@ -55,6 +67,20 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 				and skip the mapping (Optional, please provde full path)
 	        draft-asssembly.fasta:   initial draft assembly to scaffold (full path or local)
 	        read-BC_1.fastq read-BC_2.fastq:  10Xg reads with barcode appended 
-							to read names (full path or local)
+						 to read names, prepared as shown above (full path or local)
 	        output_scaffolds.fasta:   name for the output scaffolded assembly (local)
+
+Some notes and suggestions:
+            
+	a. SMALT is notably slower than BWA. So we suggest to try BWA first;
+      	b. The block value is very important. The default value of 2500 is very conservative
+		and you may increase this value to say 5000 or 10000 to improve the length of scaffolds; 
+      	c. The default numbers of -reads and -link are based on 30X read depth. 
+		These values should be increased if the read deapth is higher
+      	d. To get the best results we suggest an iterative approach, 
+		   where scaff10x scaffolds (output_scaffolds.fasta) are scaffolded again using scaff10x.
+      	e. Alignments with mapping score < score are filtered out to reduce linking errors;
+      	f. By using the option of "-longread 1", the pipeline performs an aggressive 
+		    mapping score filtering on small PacBio/ONT contigs.  
+
 	     
