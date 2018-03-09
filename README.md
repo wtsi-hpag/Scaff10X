@@ -4,7 +4,8 @@ Pipeline for scaffolding and breaking a genome assembly using 10x genomics linke
 Pipeline steps:
         
     Scaffolding with scaff10x:
-      1 Barcoded tags are extracted from 10Xg raw sequencing reads and appended to read names for further processing
+      1 Barcoded tags are extracted from 10Xg raw sequencing reads and appended 
+          to read names for further processing
       2 The reads are mapped to the draft assembly using either BWA or SMALT
       3 Barcodes are sorted together with contigs as well as mapping coordinates
       4 A relation matrix is built to record the shared barcodes among the contigs which may be linked
@@ -50,8 +51,10 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
              gap:     gap size in building scaffold [ default = 100 ]
 	     
 	       Files
-	        input.sam:   input a sam file if it already exists, and skip the mapping (Optional, please provde full path)
+	        input.sam:   input a sam file if it already exists, 
+				and skip the mapping (Optional, please provde full path)
 	        draft-asssembly.fasta:   initial draft assembly to scaffold (full path or local)
-	        read-BC_1.fastq read-BC_2.fastq:  10Xg reads with barcode appended to read names (full path or local)
+	        read-BC_1.fastq read-BC_2.fastq:  10Xg reads with barcode appended 
+							to read names (full path or local)
 	        output_scaffolds.fasta:   name for the output scaffolded assembly (local)
 	     
