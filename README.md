@@ -73,14 +73,14 @@ This is to avoid using scaff_BC-reads-1 and scaff_BC-reads-2 on files with too m
 Some notes and suggestions:
             
 	a. SMALT is notably slower than BWA. So we suggest to try BWA first;
-      	b. The block value is very important. The default value of 2500 is very conservative
-		and you may increase this value to say 5000 or 10000 to improve the length of scaffolds; 
-      	c. The default numbers of -reads and -link are based on 30X read depth. 
-		These values should be increased if the read deapth is higher
-      	d. To get the best results we suggest an iterative approach, 
-		   where scaff10x scaffolds (output_scaffolds.fasta) are scaffolded again using scaff10x.
-      	e. Alignments with mapping score < score are filtered out to reduce linking errors;
-      	f. By using the option of "-longread 1", the pipeline performs an aggressive 
-		    mapping score filtering on small PacBio/ONT contigs.  
+	b. The block value is very important. The default value of 2500 is very conservative
+	   and you may increase this value to say 5000 or 10000 to improve the length of scaffolds; 
+	c. The default numbers of -reads and -link are based on 30X read depth. 
+	   These values should be increased if the read deapth is higher
+	d. To get the best results we suggest an iterative approach, 
+	   where scaff10x scaffolds (output_scaffolds.fasta) are scaffolded again using scaff10x.
+	e. Alignments with mapping score < score are filtered out to reduce linking errors;
+	f. By using the option of "-longread 1", the pipeline performs an aggressive 
+	    mapping score filtering on small PacBio/ONT contigs.  
 
 	     
