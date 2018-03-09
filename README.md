@@ -28,7 +28,10 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 
 
 #### Run:
-           $ /full/path/to/Scaff10X/src/scaff10X -nodes <nodes> -align <aligner> -score <score> -matrix <matrix_size> -reads <min_reads> -longread <aggressive> -gap <gap_size> -edge <edge_len> -link <n_links> -block <block>  draft-asssembly.fasta read-BC_1.fastq read-BC_2.fastq output_scaffolds.fasta
+           $ /full/path/to/Scaff10X/src/scaff10X -nodes <nodes> -align <aligner> -score <score> \
+	   	-matrix <matrix_size> -reads <min_reads> -longread <aggressive> -gap <gap_size> \
+		-edge <edge_len> -link <n_links> -block <block>  \
+		draft-asssembly.fasta read-BC_1.fastq read-BC_2.fastq output_scaffolds.fasta
            
 
 	       parameters:
@@ -37,8 +40,9 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
              aligner:  sequence aligner: bwa or smalt [ default = bwa ]
              matrix_size:   relation matrix size [ default = 2000 ]
              min_reads:  minimum number of reads per barcode [ default = 10 ]
-             edge_len e length of mapped reads to consider for scaffolding [ default = 50000 ]
-             link:     - minimum number of shared barcodes [ default = 8 ]
-             aggressive: 1 - aggressively mapping filtering on small PacBio/ONT contigs; 0 - no aggressive for short read assembly  [ default = 1 ]
-             block  (2500)  - length to determine for nearest neighbours [ default = 2500 ]
-             gap    (100)   - gap size in building scaffold [ default = 100 ]
+             edge_len:   length of mapped reads to consider for scaffolding [ default = 50000 ]
+             n_links:      minimum number of shared barcodes [ default = 8 ]
+             aggressive:   1 - aggressively mapping filtering on small PacBio/ONT contigs; 
+	     		       0 - no aggressive for short read assembly  [ default = 1 ]
+             block:    length to determine for nearest neighbours [ default = 2500 ]
+             gap:     gap size in building scaffold [ default = 100 ]
