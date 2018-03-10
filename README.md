@@ -35,12 +35,19 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 #### Say you have a number of R1, R2 files, you make a file named as file.dat
 
 q1=/lustre/scratch116/vr/projects/Tes1_S1_L008_R1_001.fastq.gz
+
 q2=/lustre/scratch116/vr/projects/Tes1_S1_L008_R2_001.fastq.gz
+
 q1=/lustre/scratch116/vr/projects/Tes1_S2_L008_R1_001.fastq.gz
+
 q2=/lustre/scratch116/vr/projects/Tes1_S2_L008_R2_001.fastq.gz
+
 q1=/lustre/scratch116/vr/projects/Tes1_S3_L008_R1_001.fastq.gz
+
 q2=/lustre/scratch116/vr/projects/Tes1_S3_L008_R2_001.fastq.gz
+
 q1=/lustre/scratch116/vr/projects/Tes1_S4_L008_R1_001.fastq.gz
+
 q2=/lustre/scratch116/vr/projects/Tes1_S4_L008_R2_001.fastq.gz
 
 	$ /full/path/to/Scaff10X/scaff_reads file.dat reads_1.fastq reads_2.fastq > try.out
