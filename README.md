@@ -31,6 +31,23 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 ### Run the pipelines
 
 #### Prepare the fastq files:
+#### (1) Make a file with read files
+#### Say you have a number of R1, R2 files, you make a file named as file.dat
+
+q1=/lustre/scratch116/vr/projects/Tes1_S1_L008_R1_001.fastq.gz
+q2=/lustre/scratch116/vr/projects/Tes1_S1_L008_R2_001.fastq.gz
+q1=/lustre/scratch116/vr/projects/Tes1_S2_L008_R1_001.fastq.gz
+q2=/lustre/scratch116/vr/projects/Tes1_S2_L008_R2_001.fastq.gz
+q1=/lustre/scratch116/vr/projects/Tes1_S3_L008_R1_001.fastq.gz
+q2=/lustre/scratch116/vr/projects/Tes1_S3_L008_R2_001.fastq.gz
+q1=/lustre/scratch116/vr/projects/Tes1_S4_L008_R1_001.fastq.gz
+q2=/lustre/scratch116/vr/projects/Tes1_S4_L008_R2_001.fastq.gz
+
+	$ /full/path/to/Scaff10X/scaff_reads file.dat reads_1.fastq reads_2.fastq > try.out
+
+        where: file.dat is the file pointing read locations; reads_1.fastq reads_2.fastq are output read files with the barcodes cut out of the reads and attached to the names.
+
+#### (2) Process files one by one
 
 	$ /full/path/to/Scaff10X/src/scaff_BC-reads-1 read_1.fastq read-BC_1.fastq read-BC_1.name 
 	$ /full/path/to/Scaff10X/src/scaff_BC-reads-2 read-BC_1.name read_2.fastq read-BC_2.fastq 
