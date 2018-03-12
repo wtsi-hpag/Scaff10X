@@ -10,7 +10,16 @@ Pipeline steps:
       3 Barcodes are sorted together with contigs as well as mapping coordinates
       4 A relation matrix is built to record the shared barcodes among the contigs which may be linked
       5 Order and orientation of linked contigs are determined after nearest neighbours are found. 
-    Breaking with break10x:
+      
+    Breaking scaffolds (or contigs) with break10x:
+      Steps 1, 2 and 3 are the same as for scaff10x
+      4 The barcode depth is monitored for each scaffold, if this is reduced by more than 15% with 
+      	respect to the scaffold average barcode depth, the point of minimum depth is considered to 
+		be an assembly error and the scaffold is broken at that point. Exception are points close to 
+		long N-gaps unless the N-Gaps was added by scaff10x.
+      5 The location of breaking points are printed out in a file and the broken scaffolds are 
+      	printed in a fasta file
+      
 
 ### Download and Compile:
 Requirements for compiling: gcc
