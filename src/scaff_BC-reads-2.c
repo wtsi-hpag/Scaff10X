@@ -153,7 +153,7 @@ int main(int argc, char **argv)
     nseq=0;
     if((namef = fopen(argv[args],"r")) == NULL)
     {
-      printf("ERROR main:: args \n");
+      perror("ERROR main:: input name_1 file");
       exit(1);
     }
     while(!feof(namef))
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 
     if((namef = fopen(argv[args],"r")) == NULL)
     {
-      printf("ERROR main:: args \n");
+      perror("ERROR main:: input name_2 file");
       exit(1);
     }
 /*  read the alignment files         */
@@ -188,12 +188,12 @@ int main(int argc, char **argv)
     nseq=0;
     if((namef = fopen(argv[args+1],"r")) == NULL)
     {
-      printf("ERROR main:: alignment file 2 \n");
+      perror("ERROR main:: input read_2 file");
       exit(1);
     }
     if((namef2 = fopen(argv[args+2],"w")) == NULL)
     {
-      printf("ERROR main:: alignment file 2 \n");
+      perror("ERROR main:: out read_2 file");
       exit(1);
     }
 
