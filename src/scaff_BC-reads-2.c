@@ -169,7 +169,10 @@ int main(int argc, char **argv)
       perror("fmate: calloc - ctg_left");
       exit(1);
     }
-    R_Name = cmatrix(0,nseq+10,0,Max_N_NameBase); 
+    if((R_Name = cmatrix(0,nseq+10,0,Max_N_NameBase)) == NULL)
+    {
+      exit(1);
+    }
 
     if((namef = fopen(argv[args],"r")) == NULL)
     {
