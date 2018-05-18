@@ -166,7 +166,7 @@ int main(int argc, char **argv)
    
     if((read_index = (int *)calloc(nseq,sizeof(int))) == NULL)
     {
-      printf("fmate: calloc - ctg_left\n");
+      perror("fmate: calloc - ctg_left");
       exit(1);
     }
     R_Name = cmatrix(0,nseq+10,0,Max_N_NameBase); 
@@ -938,7 +938,7 @@ int     **imatrix(long nrl,long nrh,long ncl,long nch)
         /* allocate pointers to rows        */
         if((m=(int **)calloc(nrow,sizeof(int*)))==NULL)
         {
-           printf("error imatrix: calloc error No. 1 \n");
+           perror("error imatrix: calloc error No. 1");
            return(NULL);
         }
         m+=0;
@@ -947,7 +947,7 @@ int     **imatrix(long nrl,long nrh,long ncl,long nch)
         /* allocate rows and set pointers to them        */
         if((m[nrl]=(int *)calloc(nrow*ncol,sizeof(int)))==NULL)
         {
-           printf("error imatrix: calloc error No. 2 \n");
+           perror("error imatrix: calloc error No. 2");
            return(NULL);
         }
         m[nrl]+=0;
@@ -968,7 +968,7 @@ char    **cmatrix(long nrl,long nrh,long ncl,long nch)
         /* allocate pointers to rows        */
         if((cm=(char **)calloc(nrow,sizeof(char*)))==NULL)
         {
-           printf("error cmatrix: calloc error No. 1 \n");
+           perror("error cmatrix: calloc error No. 1");
            return(NULL);
         }
         cm+=0;
@@ -977,7 +977,7 @@ char    **cmatrix(long nrl,long nrh,long ncl,long nch)
         /* allocate rows and set pointers to them        */
         if((cm[nrl]=(char *)calloc(nrow*ncol,sizeof(char)))==NULL)
         {
-           printf("error cmatrix: calloc error No. 2 \n");
+           perror("error cmatrix: calloc error No. 2");
            return(NULL);
         }
         cm[nrl]+=0;
