@@ -63,7 +63,7 @@ q2=/lustre/scratch116/vr/projects/Tes1_S4_L008_R2_001.fastq.gz
 
         where: file.dat is the file pointing read locations; reads_1.fastq reads_2.fastq are output read files with the barcodes cut out of the reads and attached to the names.
 
-#### (2) Process files one by one
+#### Or (2) Process files one by one
 
 	$ /full/path/to/Scaff10X/src/scaff_BC-reads-1 read_1.fastq read-BC_1.fastq read-BC_1.name 
 	$ /full/path/to/Scaff10X/src/scaff_BC-reads-2 read-BC_1.name read_2.fastq read-BC_2.fastq 
