@@ -1,11 +1,7 @@
-break10x
-break10x.c
 fasta.h
 fast.c
 fast.h
 makefile
-scaff10x
-scaff10x.c
 scaff_barcode-length.c
 scaff_barcode-screen.c
 scaff_barcode-sort.c
