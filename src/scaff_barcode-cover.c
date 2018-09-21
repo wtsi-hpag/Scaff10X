@@ -55,6 +55,7 @@ static int file_flag=2;
 static int break_flag=0;
 static int mp_score=20;
 static int nContig=0;
+static int max_len = 0;
 static int min_ratio = 15;
 static int min_cover = 50;
 typedef struct
@@ -233,6 +234,8 @@ int main(int argc, char **argv)
     i=0;
     while(fscanf(namef,"%s %s %s %d %d %d %s %s %d",cc,S_Name[i],cc,&hit_length[i],&hit_locus1[i],&hit_locus2[i],cc,cc,&hit_mscore[i])!=EOF)
     {
+        if(hit_length[i] > max_len)
+          max_len = hit_length[i];
         i++;
     }
     fclose(namef);
@@ -259,8 +262,8 @@ void Barcode_Process(char **argv,int args,int nSeq)
      void ArraySort_String(int n,char **Pair_Name,int *brr);
      void ArraySort_Int2(int n, int *arr, int *brr);
 
-     g_size = 300000000;      
-     if((cov_genome= (int *)calloc(300000000,sizeof(int))) == NULL)
+     g_size = max_len+1000;;      
+     if((cov_genome= (int *)calloc(g_size,sizeof(int))) == NULL)
      {
        printf("ERROR Memory_Allocate: calloc - hit_maps\n");
        exit(1);
@@ -300,7 +303,10 @@ void Barcode_Process(char **argv,int args,int nSeq)
           int set_cover = 0;
           int ii,jj,stopflag,mini_hit,mini_los;
           stopflag = 0;
-          memset(cov_genome,0,4*ctg_len);
+          for(k=0;k<ctg_len;k++)
+             cov_genome[k] = 0;
+//          memset(cov_genome,0,4*ctg_len);
+//          printf("Scaffold: 2222 %s %d %d %d\n",S_Name[i],i,num_hits,hit_length[i]);
           num_cover = 0;
           ave_cover = 0;
           for(n=i;n<j;n++)

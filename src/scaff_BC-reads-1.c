@@ -209,7 +209,10 @@ int main(int argc, char **argv)
       {
         memset(base2,'\0',500);
         len = strlen(line2);
-        strncpy(base2,line2,len-1);;
+        if(len == 1)
+          strncpy(base2,line2,len);
+        else
+          strncpy(base2,line2,len-1);
 //        printf("align2 %d %s\n",num_align,base2);
       }
       else

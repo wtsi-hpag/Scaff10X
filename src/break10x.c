@@ -378,14 +378,84 @@ int main(int argc, char **argv)
       }
 
       memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_barcode-sort align2.dat align.sort > try.out",bindir);
+      sprintf(syscmd,"egrep ^A align2.dat > align2.dat_AAA");
       if(system(syscmd) == -1)
       {
 //        printf("System command error:\n);
       }
 
       memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_contigs-sort align.sort align.sort2 > try.out",bindir);
+      sprintf(syscmd,"egrep ^C align2.dat > align2.dat_CCC");
+      if(system(syscmd) == -1)
+      {
+//        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"egrep ^G align2.dat > align2.dat_GGG");
+      if(system(syscmd) == -1)
+      {
+//        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"egrep ^T align2.dat > align2.dat_TTT");
+      if(system(syscmd) == -1)
+      {
+//        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_AAA align.sort_AAA > try.out",bindir);
+      if(system(syscmd) == -1)
+      {
+//        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_CCC align.sort_CCC > try.out",bindir);
+      if(system(syscmd) == -1)
+      {
+//        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_GGG align.sort_GGG > try.out",bindir);
+      if(system(syscmd) == -1)
+      {
+//        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_TTT align.sort_TTT > try.out",bindir);
+      if(system(syscmd) == -1)
+      {
+//        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_contigs-sort align.sort_AAA align.sort2_AAA > try.out",bindir);
+      if(system(syscmd) == -1)
+      {
+//        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_contigs-sort align.sort_CCC align.sort2_CCC > try.out",bindir);
+      if(system(syscmd) == -1)
+      {
+//        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_contigs-sort align.sort_GGG align.sort2_GGG > try.out",bindir);
+      if(system(syscmd) == -1)
+      {
+//        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_contigs-sort align.sort_TTT align.sort2_TTT > try.out",bindir);
       if(system(syscmd) == -1)
       {
 //        printf("System command error:\n);
@@ -402,14 +472,63 @@ int main(int argc, char **argv)
     }       */
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2 align.sort3 > try.out",bindir);
+    sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_AAA align.sort3_AAA > try.out",bindir);
     if(system(syscmd) == -1)
     {
 //        printf("System command error:\n);
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scaff_PCRdup align.sort3 align.sort4 > try.out",bindir);
+    sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_CCC align.sort3_CCC > try.out",bindir);
+    if(system(syscmd) == -1)
+    {
+//        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_GGG align.sort3_GGG > try.out",bindir);
+    if(system(syscmd) == -1)
+    {
+//        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_TTT align.sort3_TTT > try.out",bindir);
+    if(system(syscmd) == -1)
+    {
+//        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_PCRdup align.sort3_AAA align.sort4_AAA > try.out",bindir);
+    if(system(syscmd) == -1)
+    {
+//        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_PCRdup align.sort3_CCC align.sort4_CCC > try.out",bindir);
+    if(system(syscmd) == -1)
+    {
+//        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_PCRdup align.sort3_GGG align.sort4_GGG > try.out",bindir);
+    if(system(syscmd) == -1)
+    {
+//        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_PCRdup align.sort3_TTT align.sort4_TTT > try.out",bindir);
+    if(system(syscmd) == -1)
+    {
+//        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"cat align.sort4_AAA align.sort4_CCC align.sort4_GGG align.sort4_TTT > align.sort4");
     if(system(syscmd) == -1)
     {
 //        printf("System command error:\n);
@@ -421,6 +540,38 @@ int main(int argc, char **argv)
     {
 //        printf("System command error:\n);
     }
+
+/* print out molecular length and barcode number distributions  */
+    
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"cat align.length-5 | awk '%s' | sort -n -k 2 > target-bcl-5.dat","{print $1,$3}");
+    if(system(syscmd) == -1)
+    {
+//        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_BClen-dis target-bcl-5.dat > target-bcl-5.freq",bindir);
+    if(system(syscmd) == -1)
+    {
+//        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"cat align.length-5 | awk '%s' | sort -n -k 2 > target-bcn-5.dat","{print $1,$7}");
+    if(system(syscmd) == -1)
+    {
+//        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_BCnum-dis target-bcn-5.dat > target-bcn-5.freq",bindir);
+    if(system(syscmd) == -1)
+    {
+//        printf("System command error:\n);
+    }
+
+/* end molecular length and barcode number distributions  */
 
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"sort -k 2,2 -k 5,5n align.length-5 > align.length-sort",bindir);
