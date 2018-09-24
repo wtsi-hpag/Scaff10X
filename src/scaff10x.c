@@ -66,6 +66,7 @@ static int mscore = 20;
 static int n_longread = 1;
 static int run_align = 1;
 static int min_len = 3000;
+static int sam_flag = 0;
 
 typedef struct
 {
@@ -94,7 +95,7 @@ int main(int argc, char **argv)
     void File_Output(int aaa);
     void Memory_Allocate(int arr);
     char tempa[2000],tempc[2000],syscmd[2000],file_tarseq[2000],file_scaff[2000],workdir[2000];
-    char file_read1[2000],file_read2[2000],samname[500],toolname[500];
+    char file_read1[2000],file_read2[2000],samname[500],bamname[500],toolname[500];
     int systemRet = system (syscmd);
     int systemChd = chdir(tmpdir);
     pid_t pid;
@@ -140,7 +141,15 @@ int main(int argc, char **argv)
        else if(!strcmp(argv[i],"-sam"))
        {
          run_align = 0;
+         sam_flag = 1;
          sscanf(argv[++i],"%s",samname);
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-bam"))
+       {
+         run_align = 0;
+         sam_flag = 0;
+         sscanf(argv[++i],"%s",bamname);
          args=args+2;
        }
        else if(!strcmp(argv[i],"-align"))
@@ -377,15 +386,31 @@ int main(int argc, char **argv)
     }
     else if(run_align == 0)
     {
-      memset(syscmd,'\0',2000);
-      if(n_longread ==0)
-        sprintf(syscmd,"cat %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",samname,"($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
-      else
-        sprintf(syscmd,"cat %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",samname,"($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
-      printf("%s\n",syscmd);
-      if(system(syscmd) == -1)
+      if(sam_flag)
       {
-//      printf("System command error:\n);
+        memset(syscmd,'\0',2000);
+        if(n_longread ==0)
+          sprintf(syscmd,"cat %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",samname,"($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
+        else
+          sprintf(syscmd,"cat %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",samname,"($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+        printf("%s\n",syscmd);
+        if(system(syscmd) == -1)
+        {
+//        printf("System command error:\n);
+        }
+      }
+      else
+      {
+        memset(syscmd,'\0',2000);
+        if(n_longread ==0)
+          sprintf(syscmd,"%s/samtools view %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,bamname,"($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
+        else
+          sprintf(syscmd,"%s/samtools view %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,bamname,"($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+        printf("%s\n",syscmd);
+        if(system(syscmd) == -1)
+        {
+//        printf("System command error:\n);
+        }
       }
     }
 
