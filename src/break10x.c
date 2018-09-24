@@ -104,7 +104,11 @@ int main(int argc, char **argv)
     
     if(argc < 2)
     {
-         printf("Usage: %s -nodes 30 -gap 100 -reads 5 -score 20 -cover 50 -ratio 15 <input_assembly_fasta/q_file> <Input_read_1>> <Input_read_2> <Output_scaffold_file> <Output_break_file>\n",argv[0]);
+         printf("Program: break10x - Identification of Assembly Breakpoints using 10X Chromium Data\n");
+         printf("Version: 3.1\n");
+         printf("\n");
+
+         printf("Usage: %s -nodes 30 -gap 100 -reads 5 -score 20 -cover 50 -ratio 15 <input_assembly_fasta/q_file> <Input_read_1>> <Input_read_2> <Output_scaffold_file> <Output_breakpoint_file>\n",argv[0]);
          printf("       nodes  (30)  - number of CPUs requested\n");
          printf("       reads  (5)   - minimum number of reads per barcode\n");
          printf("       score  (20)  - minimum average mapping score on an area covered by reads with the same barcode\n");

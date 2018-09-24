@@ -101,10 +101,13 @@ int main(int argc, char **argv)
     pid_t pid;
 
     seq=NULL;
-    system("ps aux | grep scaff10x; date");
-
+    
     if(argc < 2)
     {
+         printf("Program: scaff10x - Genome Scaffolding using 10X Chromium Data\n");
+         printf("Version: 3.1\n");
+         printf("\n");
+         
          printf("Usage: %s -nodes 30 -longread 1 -gap 100 -matrix 2000 -reads 10 -score 20 -edge 50000 -link 8 -block 50000  <input_assembly_fasta/q_file> <Input_read_1>> <Input_read_2> <Output_scaffold_file>\n",argv[0]);
          printf("       nodes  (30)    - number of CPUs requested\n");
          printf("       matrix (2000)  - relation matrix size\n");

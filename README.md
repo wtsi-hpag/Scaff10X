@@ -80,7 +80,7 @@ This is to avoid using scaff_BC-reads-1 and scaff_BC-reads-2 on files with too m
            $ /full/path/to/Scaff10X/src/scaff10X -nodes <nodes> -align <aligner> -score <score> \
 	   	 -matrix <matrix_size> -reads <min_reads> -longread <aggressive> -gap <gap_size> \
 		 -edge <edge_len> -link <n_links> -block <block>  \
-		 [ -sam input.sam ] \
+		 [ -sam input.sam ] [ -bam input.bam ] \
 		 draft-asssembly.fasta read-BC_1.fastq read-BC_2.fastq output_scaffolds.fasta
            
 
@@ -100,6 +100,15 @@ This is to avoid using scaff_BC-reads-1 and scaff_BC-reads-2 on files with too m
 	       Files
 	        input.sam:   input a sam file if it already exists, 
 				and skip the mapping (Optional, please provde full path)
+	        input.bam:   input a bam file which had been prodcued by using lariat in longrange, 
+				and skip the mapping (Optional, please provde full path)
+				(a). rename the assembly file:
+				$ /full/path/to/Scaff10X/src/scaff-bin/scaff_rename your_assembly.fa longrang_refasm.fa
+				(b). generate reference assembly file using longrang
+				$ longranger mkref longrang_refasm.fa 
+				(c). align 10x reads using lariat
+				$ longranger align --fastq="reads_10x" --sample=fTakRub1 --reference="longrang_refasm" --localcores=50 --id=10x-align 
+				Note: please provde full path
 	        draft-asssembly.fasta:   initial draft assembly to scaffold (full path or local)
 	        read-BC_1.fastq read-BC_2.fastq:  10Xg reads with barcode appended 
 						 to read names, prepared as shown above (full path or local)

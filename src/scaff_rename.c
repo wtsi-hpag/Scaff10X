@@ -61,32 +61,6 @@ typedef struct
 static fasta **expp;
 fasta *expt;
 
-static char rc_char[500000];
-static char rc_sub[5000];
-
-int ReverseComplement(int seqdex)
-{
-        int i,len;
-        char *tp,*dp;
-        fasta *seqp;
-
-        seqp=expt+seqdex;
-        len=seqp->length;
-        memset(rc_sub,'\0',5000);
-        dp=rc_sub;      
-        tp = seqp->data+len;
-        for(i=len;--i>=0;)
-        {
-                int tmp = *--tp;
-                if     (tmp == 't') *dp++ = 'a';
-                else if(tmp == 'g') *dp++ = 'c';
-                else if(tmp == 'c') *dp++ = 'g';
-                else if(tmp == 'a') *dp++ = 't';
-                else                *dp++ = tmp;
-        }
-        return(0);
-}
-
 int main(int argc, char **argv)
 {
     FILE *fp,*namef;
@@ -94,7 +68,7 @@ int main(int argc, char **argv)
     int i,j,nSeq,args,qthresh=0;
     int nseq,kick_flag = 0;
     fasta *seq,*seqp;
-    char ctgname[30];
+    char ctgname[100];
     void decodeReadpair(int nSeq);
     void HashFasta_Head(int i, int nSeq);
     void HashFasta_Table(int i, int nSeq);
@@ -116,6 +90,7 @@ int main(int argc, char **argv)
       exit(1);
     }
 
+    strcpy(ctgname,"tarseq");
     nSeq=0;
     args=1;
     for(i=1;i<argc;i++)
@@ -137,7 +112,7 @@ int main(int argc, char **argv)
        }
        else if(!strcmp(argv[i],"-name"))
        {
-         memset(ctgname,'\0',30);
+         memset(ctgname,'\0',100);
          sscanf(argv[++i],"%s",ctgname);
          args=args+2;
        }
@@ -157,7 +132,7 @@ int main(int argc, char **argv)
       error("no query data found.\n");
     nseq=0;
     nSeq = num_seqque;
-    printf("Number of shotgun reads  %d \n",nSeq);
+    printf("Number of contigs  %d \n",nSeq);
 
     if(totalBases == 0)
       return EXIT_SUCCESS;
@@ -179,7 +154,7 @@ int main(int argc, char **argv)
        st = seqp->data;
        if(seq_ed>=set_len)
        {
-         fprintf(namef,">%s_%d\n","Scaff10x",i);
+         fprintf(namef,">%s_%d\n",ctgname,i);
          for(j=0;j<nline;j++)
          {
             for(k=0;k<60;k++,st++)
