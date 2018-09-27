@@ -100,7 +100,7 @@ This is to avoid using scaff_BC-reads-1 and scaff_BC-reads-2 on files with too m
 	       Files
 	        input.sam:   input a sam file if it already exists, 
 				and skip the mapping (Optional, please provde full path)
-	        input.bam:   input a bam file which had been prodcued by using lariat in longrange, 
+	        input.bam:   input a bam file which had been prodcued by using lariat in longranger, 
 				and skip the mapping (Optional, please provde full path)
 				(a). rename the assembly file (Optional):
 				$ /full/path/to/Scaff10X/src/scaff-bin/scaff_rename your_assembly.fa longrang_refasm.fa
