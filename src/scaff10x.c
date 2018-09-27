@@ -285,46 +285,48 @@ int main(int argc, char **argv)
       printf("Input target assembly file: %s\n",file_tarseq);
     } 
 
-    if((namef = fopen(file_read1,"r")) == NULL)
+    if(run_align)
     {
-      printf("File not in the working directory!\n");
-      if((namef = fopen(argv[args+1],"r")) == NULL)
+      if((namef = fopen(file_read1,"r")) == NULL)
       {
-        printf("File %s not found and please copy it to your working directory!\n",argv[args+1]);
-        exit(1);
+        printf("File not in the working directory!\n");
+        if((namef = fopen(argv[args+1],"r")) == NULL)
+        {
+          printf("File %s not found and please copy it to your working directory!\n",argv[args+1]);
+          exit(1);
+        }
+        else
+        {
+          memset(file_read1,'\0',2000);
+          strcpy(file_read1,argv[args+1]);
+          printf("Input read1 file: %s\n",file_read1);
+        }
       }
       else
       {
-        memset(file_read1,'\0',2000);
-        strcpy(file_read1,argv[args+1]);
         printf("Input read1 file: %s\n",file_read1);
-      }
-    }
-    else
-    {
-      printf("Input read1 file: %s\n",file_read1);
-    } 
+      } 
 
-    if((namef = fopen(file_read2,"r")) == NULL)
-    {
-      printf("File not in the working directory!\n");
-      if((namef = fopen(argv[args+2],"r")) == NULL)
+      if((namef = fopen(file_read2,"r")) == NULL)
       {
-        printf("File %s not found and please copy it to your working directory!\n",argv[args+2]);
-        exit(1);
+        printf("File not in the working directory!\n");
+        if((namef = fopen(argv[args+2],"r")) == NULL)
+        {
+          printf("File %s not found and please copy it to your working directory!\n",argv[args+2]);
+          exit(1);
+        }
+        else
+        {
+          memset(file_read2,'\0',2000);
+          strcpy(file_read2,argv[args+2]);
+          printf("Input read2 file: %s\n",file_read2);
+        }
       }
       else
       {
-        memset(file_read2,'\0',2000);
-        strcpy(file_read2,argv[args+2]);
         printf("Input read2 file: %s\n",file_read2);
-      }
+      } 
     }
-    else
-    {
-      printf("Input read2 file: %s\n",file_read2);
-    } 
-
 
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_fastq -name tarseq -len 10 %s tarseq.fastq tarseq.tag > try.out",bindir,file_tarseq);
@@ -405,14 +407,23 @@ int main(int argc, char **argv)
       else
       {
         memset(syscmd,'\0',2000);
+//          sprintf(syscmd,"%s/samtools view %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,bamname,"($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
         if(n_longread ==0)
-          sprintf(syscmd,"%s/samtools view %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,bamname,"($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
+          sprintf(syscmd,"%s/samtools view %s | awk '%s' | egrep -v '^@' > align0.dat",bindir,bamname,"($4!=0)&&($2<100)&&($5>0){print $1,$12,$2,$3,$4,$5}");
         else
-          sprintf(syscmd,"%s/samtools view %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,bamname,"($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+          sprintf(syscmd,"%s/samtools view %s | awk '%s' | egrep -v '^@' > align0.dat",bindir,bamname,"($4!=0)&&($2<100)&&($5>=0){print $1,$12,$2,$3,$4,$5}");
         printf("%s\n",syscmd);
         if(system(syscmd) == -1)
         {
 //        printf("System command error:\n);
+        }
+
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_bwa-barcode tarseq.tag align0.dat align.dat > try.out",bindir);
+        printf("%s\n",syscmd);
+        if(system(syscmd) == -1)
+        {
+//          printf("System command error:\n);
         }
       }
     }
