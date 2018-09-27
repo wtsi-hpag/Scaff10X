@@ -104,7 +104,7 @@ This is to avoid using scaff_BC-reads-1 and scaff_BC-reads-2 on files with too m
 				and skip the mapping (Optional, please provde full path)
 				(a). rename the assembly file (Optional):
 				$ /full/path/to/Scaff10X/src/scaff-bin/scaff_rename your_assembly.fa longrang_refasm.fa
-				(b). generate reference assembly file using longrang
+				(b). generate reference assembly file using longranger
 				$ longranger mkref longrang_refasm.fa 
 				(c). align 10x reads using lariat
 				$ longranger align --fastq="reads_10x" --sample=fTakRub1 --reference="longrang_refasm" --localcores=50 --id=10x-align 
