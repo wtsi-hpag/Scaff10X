@@ -382,6 +382,7 @@ void Mapping_Process(char **argv,int args,int nSeq)
                   len2 = hit_length[n]-hit_maps[m-n-1];
                   idd0 = hit_maps[0] + (len/2);
                   idd1 = hit_length[n]/2;
+                  printf("www: %d %s %d %d %d %d %d %d %d\n",i,S_Name[n],num_hit2,ctg_index[n],barreads,mscore,len,hit_maps[m-n-1],hit_maps[0]); 
                   if((mscore >= mpscore)&&(len >=1000)&&((hit_maps[0]<block_set)||(len2<block_set)))
                   {
                     float rate;
