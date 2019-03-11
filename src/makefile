@@ -33,6 +33,7 @@ clean:
 	@rm -f $(OBJS)
 	@cp scaff-bin/scaff10x .
 	@cp scaff-bin/break10x .
+	@cp scaff-bin/scaff_reads .
 
 cleanall: 
 	@echo '+++ Cleaning All ... '
