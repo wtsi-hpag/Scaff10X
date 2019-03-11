@@ -230,7 +230,10 @@ int main(int argc, char **argv)
              st = base0+1;
              len = strlen(base0);
              memset(rdname,'\0',500);
-             strncpy(rdname,st,len-1);
+             if(nPair > 1)
+               strncpy(rdname,st,len-1);
+             else
+               strncpy(rdname,st,len-2);
 //        printf("align0 %d %s\n",num_align,rdname);
            }
         }
