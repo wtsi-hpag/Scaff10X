@@ -188,6 +188,9 @@ int main(int argc, char **argv)
        }
     }
 
+    fflush(stdout);
+    system("ps aux | grep scaff_matrix; date");
+
     nseq=0;
     if((namef = fopen(argv[args],"r")) == NULL)
     {
@@ -311,7 +314,7 @@ void Barcoding_Process(char **argv,int args,int nSeq)
      FILE *namef;
      int num_hits,hit_ray[5000];
      int stopflag,*n_list,*ctg_links,*ctg_hitnum;
-     int offset,**r_matrix,**b_matrix,**m1_matrix,**m2_matrix;
+     int offset,**r_matrix,**b_matrix,**m1_matrix,**m2_matrix,**bc_links;
      int **l0_matrix,**l1_matrix,**l2_matrix,**r0_matrix,**r1_matrix,**r2_matrix,**h12_matrix,**h21_matrix,**h22_matrix;
      void ArraySort_Mix(int n, long *arr, int *brr);
      char **DBname,RC[2];
@@ -388,6 +391,7 @@ void Barcoding_Process(char **argv,int args,int nSeq)
      r0_matrix=imatrix(0,i_max,0,n_matrix);
      r1_matrix=imatrix(0,i_max,0,n_matrix);
      r2_matrix=imatrix(0,i_max,0,n_matrix);
+     bc_links=imatrix(0,i_max,0,i_max);
 
 /*   Ourput the cigar line file   */
      for(i=0;i<(nSeq-1);i++)
@@ -498,8 +502,8 @@ void Barcoding_Process(char **argv,int args,int nSeq)
                int num_edge = 0;
                int hitmax1 = 0;
                int hitmax2 = 0;
-               int ctgmax1 = 0;
-               int ctgmax2 = 0;
+               int ctgmax1 = -1;
+               int ctgmax2 = -1;
                int rcdex = 0;
                int rcdex2 = 0;
 
@@ -638,8 +642,6 @@ void Barcoding_Process(char **argv,int args,int nSeq)
                         ctg_mapp2[k] = b_matrix[k][i]; 
                         ctg_idex2[k] = i;
                       }
-//                    if((k==i_getindex))
-//                      printf("xxx2: %s %d %d %d %d %d %d\n",S_Name[i],b_matrix[k][i],i,ctgmax1,ctgmax2,r_matrix[k][i],n_list[k]);
 //                      if(((i==ctgmax1)||(i==ctgmax2))&&(r_matrix[k][i]>=n_links))
                       if(((i==ctgmax1)||(i==ctgmax2))&&(r_matrix[k][i]>=n_links)&&(ctg_mask[b_matrix[k][i]]==0))
                       {
@@ -680,6 +682,7 @@ void Barcoding_Process(char **argv,int args,int nSeq)
                             ctg_hitnum[k]++;
                             if(ctg_pairmp[b_matrix[k][i]] == 0)
                               ctg_pairmp[b_matrix[k][i]] = m2_score;
+                              bc_links[k][b_matrix[k][i]] = r_matrix[k][i];;
                     if((b_matrix[k][i]==i_getindex))
                       printf("xxx: %s %d %d %d %d %d %d %d\n",S_Name[i],hitmax1,hitmax2,b_matrix[k][i],ctgmax1,ctgmax2,m1_score,m2_score);
                             if(file_flag)
@@ -724,6 +727,7 @@ void Barcoding_Process(char **argv,int args,int nSeq)
                             ctg_hitnum[k]++;
                             if(ctg_pairmp[b_matrix[k][i]] == 0)
                               ctg_pairmp[b_matrix[k][i]] = m2_score;
+                              bc_links[k][b_matrix[k][i]] = r_matrix[k][i];;
                     if((b_matrix[k][i]==i_getindex))
                       printf("xxx: %s %d %d %d %d %d %d %d\n",S_Name[i],hitmax1,hitmax2,b_matrix[k][i],ctgmax1,ctgmax2,m1_score,m2_score);
                             if(file_flag)
@@ -753,7 +757,7 @@ void Barcoding_Process(char **argv,int args,int nSeq)
             if((ctg_hitnum[k]==0)&&(ctg_outp[k]==0))
             {
               printf("supercontig: tarseq_%d %d\n",k,k);
-              fprintf(namef,"contig-1:%d %d %d %d 0\n",ctg_pairmp[k],n_scaff,k,ctg_length[k]);
+              fprintf(namef,"contig-1:%d_%d %d %d %d 0\n",ctg_pairmp[k],0,n_scaff,k,ctg_length[k]);
               printf("contig-1: %d %d %d 0\n",n_scaff,k,ctg_length[k]);
               tbase = ctg_length[k];
               printf("bases: %d %d %d\n",k,n_scaff,tbase);
@@ -769,7 +773,7 @@ void Barcoding_Process(char **argv,int args,int nSeq)
 
 //             if(k==i_getindex)
 //               printf("hhh: %d %d %d %d %d %d %d %d\n",k,idd,idk,ctg_hitnum[k],ctg_used[k],ctg_used[idd],ctg_mapp1[idd],ctg_mapp2[idd]);
-             while((ctg_mapp1[idd] >= 0)||(ctg_mapp2[idd] >= 0)&&(stopflag == 0)&&(ctg_links[idk]>0)&&(ctg_mask[idk]==0))
+             while((idd >= 0)&&(ctg_mapp1[idd] >= 0)||(ctg_mapp2[idd] >= 0)&&(stopflag == 0)&&(ctg_links[idk]>0)&&(ctg_mask[idk]==0))
              {
                int rc_idk = -1;
                int rc_idi = 0;
@@ -791,14 +795,14 @@ void Barcoding_Process(char **argv,int args,int nSeq)
                    printf("supercontig: tarseq_%d %d %d %d %d %d\n",k,idd,idk,rc_idk,ctg_rcdex1[k],ctg_hitnum[k]);
                    if(rc_idk==0)
                    {
-                     fprintf(namef,"contigg1:%d %d %d %d 1\n",ctg_pairmp[k],n_scaff,k,ctg_length[k]);
+                     fprintf(namef,"contigg1:%d_%d %d %d %d 1\n",ctg_pairmp[k],bc_links[idd][idk],n_scaff,k,ctg_length[k]);
                      printf("contigg1: %d %d %d 1\n",n_scaff,k,ctg_length[k]);
                      ctg_outp[k] = 1;
                      if(idk!=k)
                      {
                        if(ctg_outp[idk] == 0)
                        {
-                         fprintf(namef,"contigg2:%d %d %d %d 0\n",ctg_pairmp[idk],n_scaff,idk,ctg_length[idk]);
+                         fprintf(namef,"contigg2:%d_%d %d %d %d 0\n",ctg_pairmp[idk],bc_links[idd][idk],n_scaff,idk,ctg_length[idk]);
                          printf("contigg2: %d %d %d 0\n",n_scaff,idk,ctg_length[idk]);
                        }
                        ctg_outp[idk] = 1;
@@ -806,14 +810,14 @@ void Barcoding_Process(char **argv,int args,int nSeq)
                    }
                    else if(rc_idk==1)
                    {
-                     fprintf(namef,"contigg1:%d %d %d %d 1\n",ctg_pairmp[k],n_scaff,k,ctg_length[k]);
+                     fprintf(namef,"contigg1:%d_%d %d %d %d 1\n",ctg_pairmp[k],bc_links[idd][idk],n_scaff,k,ctg_length[k]);
                      printf("contigg1: %d %d %d 1\n",n_scaff,k,ctg_length[k]);
                      ctg_outp[k] = 1;
                      if(idk!=k)
                      {
                        if(ctg_outp[idk] == 0)
                        {
-                         fprintf(namef,"contigg2:%d %d %d %d 1\n",ctg_pairmp[idk],n_scaff,idk,ctg_length[idk]);
+                         fprintf(namef,"contigg2:%d_%d %d %d %d 1\n",ctg_pairmp[idk],bc_links[idd][idk],n_scaff,idk,ctg_length[idk]);
                          printf("contigg2: %d %d %d 1\n",n_scaff,idk,ctg_length[idk]);
                        }
                        ctg_outp[idk] = 1;
@@ -821,14 +825,14 @@ void Barcoding_Process(char **argv,int args,int nSeq)
                    }
                    else if(rc_idk==2)
                    {
-                     fprintf(namef,"contigg1:%d %d %d %d 0\n",ctg_pairmp[k],n_scaff,k,ctg_length[k]);
+                     fprintf(namef,"contigg1:%d_%d %d %d %d 0\n",ctg_pairmp[k],bc_links[idd][idk],n_scaff,k,ctg_length[k]);
                      printf("contigg1: %d %d %d 0\n",n_scaff,k,ctg_length[k]);
                      ctg_outp[k] = 1;
                      if(idk!=k)
                      {
                        if(ctg_outp[idk] == 0)
                        {
-                         fprintf(namef,"contigg2:%d %d %d %d 0\n",ctg_pairmp[idk],n_scaff,idk,ctg_length[idk]);
+                         fprintf(namef,"contigg2:%d_%d %d %d %d 0\n",ctg_pairmp[idk],bc_links[idd][idk],n_scaff,idk,ctg_length[idk]);
                          printf("contigg2: %d %d %d 0\n",n_scaff,idk,ctg_length[idk]);
                        }
                        ctg_outp[idk] = 1;
@@ -836,14 +840,14 @@ void Barcoding_Process(char **argv,int args,int nSeq)
                    }
                    else if(rc_idk==3)
                    {
-                     fprintf(namef,"contigg1:%d %d %d %d 0\n",ctg_pairmp[k],n_scaff,k,ctg_length[k]);
+                     fprintf(namef,"contigg1:%d_%d %d %d %d 0\n",ctg_pairmp[k],bc_links[idd][idk],n_scaff,k,ctg_length[k]);
                      printf("contigg1: %d %d %d 0\n",n_scaff,k,ctg_length[k]);
                      ctg_outp[k] = 1;
                      if(idk!=k)
                      {
                        if(ctg_outp[idk] == 0)
                        {
-                         fprintf(namef,"contigg2:%d %d %d %d 1\n",ctg_pairmp[idk],n_scaff,idk,ctg_length[idk]);
+                         fprintf(namef,"contigg2:%d_%d %d %d %d 1\n",ctg_pairmp[idk],bc_links[idd][idk],n_scaff,idk,ctg_length[idk]);
                          printf("contigg2: %d %d %d 1\n",n_scaff,idk,ctg_length[idk]);
                        }
                        ctg_outp[idk] = 1;
@@ -851,7 +855,7 @@ void Barcoding_Process(char **argv,int args,int nSeq)
                    }
                    else
                    {
-                     fprintf(namef,"contigg1:%d %d %d %d 0\n",ctg_pairmp[k],n_scaff,k,ctg_length[k]);
+                     fprintf(namef,"contigg1:%d_%d %d %d %d 0\n",ctg_pairmp[k],bc_links[idd][idk],n_scaff,k,ctg_length[k]);
                      printf("contigg1: %d %d %d 0\n",n_scaff,k,ctg_length[k]);
                      ctg_outp[k] = 1;
                    }
@@ -861,7 +865,7 @@ void Barcoding_Process(char **argv,int args,int nSeq)
                    ctg_used[k] = 0;
                    num_loops++;
                  }
-                 else if((ctg_mapp1[idd]>=0)&&(ctg_mapp2[idd]>=0)&&(idd!=idk))
+                 else if((idd>=0)&&(ctg_mapp1[idd]>=0)&&(ctg_mapp2[idd]>=0)&&(idd!=idk))
                  {
                    int rc_idd = 0;
                    int rc_ide = 0;
@@ -880,10 +884,12 @@ void Barcoding_Process(char **argv,int args,int nSeq)
                      rc_ide = 1;
                    else
                      rc_ide = 0;
+//             printf("hhh: %d %d %d %d %d %d\n",k,idd,idk,ctg_hitnum[k],ctg_mapp1[idd],ctg_mapp2[idd]);
                    if(ctg_outp[idk] == 0)
                    {
-                     fprintf(namef,"contig-0:%d %d %d %d %d\n",ctg_pairmp[idk],n_scaff,idk,ctg_length[idk],rc_ide);
-                     printf("contig-0: %d %d %d %d\n",n_scaff,idk,ctg_length[idk],rc_ide);
+                     fprintf(namef,"contig-0:%d_%d %d %d %d %d\n",ctg_pairmp[idk],bc_links[idd][idk],n_scaff,idk,ctg_length[idk],rc_ide);
+//                     fprintf(namef,"contig-0:%d_%d %d %d %d %d\n",ctg_pairmp[idk],bc_links[idd][idk],n_scaff,idk,ctg_length[idk],rc_ide);
+                     printf("contig-0: %d %d %d %d %d %d\n",n_scaff,idk,ctg_length[idk],rc_ide,idd,idk);
                    }
                    ctg_outp[idk] = 1;
                    rc_idi = rc_ide;       
@@ -906,8 +912,10 @@ void Barcoding_Process(char **argv,int args,int nSeq)
              if(tbase == 0)
                tbase = ctg_length[idk];
              if(num_loops != 0)
+             {
                printf("bases: %d %d %d\n",idk,n_scaff,tbase);
-             n_scaff++;
+               n_scaff++;
+             }
             }
           }
           for(k=0;k<i_max;k++)
@@ -916,7 +924,7 @@ void Barcoding_Process(char **argv,int args,int nSeq)
              if(ctg_outp[k] == 0)
              {
                printf("supercontig: tarseq_%d %d\n",k,k);
-               fprintf(namef,"contig-n:%d %d %d %d 0\n",ctg_pairmp[k],n_scaff,k,ctg_length[k]);
+               fprintf(namef,"contig-n:%d_%d %d %d %d 0\n",ctg_pairmp[k],bc_links[k][k],n_scaff,k,ctg_length[k]);
                printf("contig-n: %d %d %d 0\n",n_scaff,k,ctg_length[k]);
                tbase = ctg_length[k];
                printf("bases: %d %d %d\n",k,n_scaff,tbase);
