@@ -55,11 +55,16 @@ static int *readIndex;
 /* SSAS default parameters   */
 static int n_group=0;
 static int num_reads=10;
+static int num1_reads=8;
+static int num2_reads=10;
 static int num_links=8;
+static int num1_links=8;
+static int num2_links=10;
 static int len_block=50000;
 static int len_edges=50000;
 static int len_matrx=2000;
 static int min_edge = 5;
+static int file_tag = 0;
 static int gap_len = 100;
 static int uplinks = 50;
 static int mscore = 20;
@@ -94,8 +99,8 @@ int main(int argc, char **argv)
     void Read_Group(fasta *seq,int nSeq,int nRead,int cindex);
     void File_Output(int aaa);
     void Memory_Allocate(int arr);
-    char tempa[2000],tempc[2000],syscmd[2000],file_tarseq[2000],file_scaff[2000],workdir[2000];
-    char file_read1[2000],file_read2[2000],samname[500],bamname[500],toolname[500];
+    char tempa[2000],tempc[2000],syscmd[2000],file_tarseq[2000],file_scaff[2000],file_sfagp[2000],workdir[2000];
+    char file_read1[2000],file_read2[2000],samname[500],bamname[500],toolname[500],datname[500];
     int systemRet = system (syscmd);
     int systemChd = chdir(tmpdir);
     pid_t pid;
@@ -105,20 +110,28 @@ int main(int argc, char **argv)
     if(argc < 2)
     {
          printf("Program: scaff10x - Genome Scaffolding using 10X Chromium Data\n");
-         printf("Version: 3.1\n");
+         printf("Version: 4.0\n");
          printf("\n");
          
          printf("Usage: %s -nodes 30 -longread 1 -gap 100 -matrix 2000 -reads 10 -score 20 -edge 50000 -link 8 -block 50000  <input_assembly_fasta/q_file> <Input_read_1>> <Input_read_2> <Output_scaffold_file>\n",argv[0]);
-         printf("       nodes  (30)    - number of CPUs requested\n");
-         printf("       matrix (2000)  - relation matrix size\n");
-         printf("       reads  (10)    - minimum number of reads per barcode\n");
-         printf("       edge   (50000) - edge length to consider for scaffolding\n");
-         printf("       score  (20)    - minimum average mapping score on a barcode covered area\n");
-         printf("       link   (8)     - minimum number of shared barcodes\n");
-         printf("       block  (50000) - length to determine for nearest neighbours\n");
-         printf("       longread  (1)    - contigs were produced using PacBio or ONT reads\n");
-         printf("               (0)    - contigs were produced from short reads such as Illumina\n");
-         printf("       gap    (100)   - gap size in building scaffold\n");
+         printf("       nodes    (30)    - number of CPUs requested\n");
+         printf("       matrix   (2000)  - relation matrix size\n");
+         printf("       reads    (10)    - step 1 and 2: minimum number of reads per barcode\n");
+         printf("       link     (8)     - step 1 and 2: minimum number of shared barcodes\n");
+         printf("       read-s1 (8)     - step 1: minimum number of reads per barcode\n");
+         printf("       read-s2 (10)    - step 2: minimum number of reads per barcode\n");
+         printf("       link-s1  (8)     - step 1: minimum number of shared barcodes\n");
+         printf("       link-s2  (10)    - step 2: minimum number of shared barcodes\n");
+         printf("       edge     (50000) - edge length to consider for scaffolding\n");
+         printf("       score    (20)    - minimum average mapping score on a barcode covered area\n");
+         printf("       block    (50000) - length to determine for nearest neighbours\n");
+         printf("       longread (1)     - contigs were produced using PacBio or ONT reads\n");
+         printf("                (0)     - contigs were produced from short reads such as Illumina\n");
+         printf("       file     (0)     - do not output the sam file in order to save disk space\n");
+         printf("                (1)     - sam file from bwa is saved\n");
+         printf("       gap      (100)   - gap size in building scaffold\n");
+         printf("       sam      ()      - previously aligned sam file by bwa\n");
+         printf("       bam      ()      - previously aligned bam file by longrange\n");
          exit(1);
     }
 
@@ -151,8 +164,16 @@ int main(int argc, char **argv)
        else if(!strcmp(argv[i],"-bam"))
        {
          run_align = 0;
-         sam_flag = 0;
+         sam_flag = 2;
          sscanf(argv[++i],"%s",bamname);
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-dat"))
+       {
+         run_align = 0;
+         file_tag = 2;
+         sam_flag = 3;
+         sscanf(argv[++i],"%s",datname);
          args=args+2;
        }
        else if(!strcmp(argv[i],"-align"))
@@ -183,17 +204,25 @@ int main(int argc, char **argv)
        }
        else if(!strcmp(argv[i],"-help"))
        {
-         printf("Usage: %s -nodes 30 -longread 1 -gap 100 -matrix 2000 -score 20 -reads 10 -edge 50000 -link 8 -block 50000  <input_assembly_fasta/q_file> <Input_read_1>> <Input_read_2> <Output_scaffold_file>\n",argv[0]);
-         printf("       nodes  (30)    - number of CPUs requested\n");
-         printf("       matrix (2000)  - relation matrix size\n");
-         printf("       reads  (10)    - minimum number of reads per barcode\n");
-         printf("       edge   (50000) - edge length to consider for scaffolding\n");
-         printf("       link   (8)     - minimum number of shared barcodes\n");
-         printf("       score  (20)    - minimum average mapping score on a barcode covered area\n");
-         printf("       block  (50000) - length to determine for nearest neighbours\n");
-         printf("       longread (1)   - contigs were produced using PacBio or ONT reads\n");
-         printf("              (0)     - contigs were produced from short reads such as Illumina\n");
-         printf("       gap    (100)   - gap size in building scaffold\n");
+         printf("Usage: %s -nodes 30 -longread 1 -gap 100 -matrix 2000 -reads 10 -score 20 -edge 50000 -link 8 -block 50000  <input_assembly_fasta/q_file> <Input_read_1>> <Input_read_2> <Output_scaffold_file>\n",argv[0]);
+         printf("       nodes    (30)    - number of CPUs requested\n");
+         printf("       matrix   (2000)  - relation matrix size\n");
+         printf("       reads    (10)    - step 1 and 2: minimum number of reads per barcode\n");
+         printf("       link     (8)     - step 1 and 2: minimum number of shared barcodes\n");
+         printf("       read-s1 (8)     - step 1: minimum number of reads per barcode\n");
+         printf("       read-s2 (10)    - step 2: minimum number of reads per barcode\n");
+         printf("       link-s1  (8)     - step 1: minimum number of shared barcodes\n");
+         printf("       link-s2  (10)    - step 2: minimum number of shared barcodes\n");
+         printf("       edge     (50000) - edge length to consider for scaffolding\n");
+         printf("       score    (20)    - minimum average mapping score on a barcode covered area\n");
+         printf("       block    (50000) - length to determine for nearest neighbours\n");
+         printf("       longread (1)     - contigs were produced using PacBio or ONT reads\n");
+         printf("                (0)     - contigs were produced from short reads such as Illumina\n");
+         printf("       file     (0)     - do not output the sam file in order to save disk space\n");
+         printf("                (1)     - sam file from bwa is saved\n");
+         printf("       gap      (100)   - gap size in building scaffold\n");
+         printf("       sam      ()      - previously aligned sam file by bwa\n");
+         printf("       bam      ()      - previously aligned bam file by longrange\n");
          exit(1);
        }
        else if(!strcmp(argv[i],"-block"))
@@ -208,7 +237,36 @@ int main(int argc, char **argv)
        }
        else if(!strcmp(argv[i],"-reads"))
        {
-         sscanf(argv[++i],"%d",&num_reads); 
+         sscanf(argv[++i],"%d",&num_reads);
+         num1_reads = num_reads;
+         num2_reads = num_reads; 
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-read-s1"))
+       {
+         sscanf(argv[++i],"%d",&num1_reads); 
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-read-s2"))
+       {
+         sscanf(argv[++i],"%d",&num2_reads); 
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-link"))
+       {
+         sscanf(argv[++i],"%d",&num_links);
+         num1_links = num_links;
+         num2_links = num_links; 
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-link-s1"))
+       {
+         sscanf(argv[++i],"%d",&num1_links); 
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-link-s2"))
+       {
+         sscanf(argv[++i],"%d",&num2_links); 
          args=args+2;
        }
        else if(!strcmp(argv[i],"-uplink"))
@@ -216,9 +274,9 @@ int main(int argc, char **argv)
          sscanf(argv[++i],"%d",&uplinks); 
          args=args+2;
        }
-       else if(!strcmp(argv[i],"-link"))
+       else if(!strcmp(argv[i],"-file"))
        {
-         sscanf(argv[++i],"%d",&num_links); 
+         sscanf(argv[++i],"%d",&file_tag); 
          args=args+2;
        }
     }
@@ -258,10 +316,12 @@ int main(int argc, char **argv)
     memset(file_read1,'\0',2000);
     memset(file_read2,'\0',2000);
     memset(file_scaff,'\0',2000);
+    memset(file_sfagp,'\0',2000);
     sprintf(file_tarseq,"%s/%s",tempa,argv[args]);
     sprintf(file_read1,"%s/%s",tempa,argv[args+1]);
     sprintf(file_read2,"%s/%s",tempa,argv[args+2]);
     sprintf(file_scaff,"%s/%s",tempa,argv[args+3]);
+    sprintf(file_sfagp,"%s/%s.agp",tempa,argv[args+3]);
 
     if(n_longread ==0)
       mscore = 1;  
@@ -332,7 +392,7 @@ int main(int argc, char **argv)
     sprintf(syscmd,"%s/scaff_fastq -name tarseq -len 10 %s tarseq.fastq tarseq.tag > try.out",bindir,file_tarseq);
     if(system(syscmd) == -1)
     {
-//      printf("System command error:\n);
+      printf("System command error:\n");
     }
 
     if((run_align)&&(strcmp(toolname,"bwa") == 0))
@@ -341,25 +401,41 @@ int main(int argc, char **argv)
       sprintf(syscmd,"%s/bwa index tarseq.fastq > try.out",bindir);
       if(system(syscmd) == -1)
       {
-//      printf("System command error:\n);
+        printf("System command error:\n");
       }
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s > align.sam",bindir,n_nodes,file_read1,file_read2);
-      if(system(syscmd) == -1)
+      if(file_tag == 0)
       {
-//      printf("System command error:\n);
+        memset(syscmd,'\0',2000);
+        if(n_longread == 0)
+          sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,n_nodes,file_read1,file_read2,"($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
+        else
+          sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,n_nodes,file_read1,file_read2,"($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
       }
+      else if(file_tag == 1)
+      {
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s > align.sam",bindir,n_nodes,file_read1,file_read2);
+        if(system(syscmd) == -1)
+        {
+          printf("System command error:\n");
+        }
 
-      memset(syscmd,'\0',2000);
-      if(n_longread ==0)
-        sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
+        memset(syscmd,'\0',2000);
+        if(n_longread ==0)
+          sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
+        else
+          sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+      }
       else
-        sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+      {
+        printf("File input error!\n");
+        exit(1);
+      }  
       printf("%s\n",syscmd);
       if(system(syscmd) == -1)
       {
-//      printf("System command error:\n);
+        printf("System command error:\n");
       }
     }
     else if((run_align)&&(strcmp(toolname,"smalt") == 0))
@@ -368,30 +444,41 @@ int main(int argc, char **argv)
       sprintf(syscmd,"%s/smalt index -k 19 -s 11 hash_genome tarseq.fastq  > try.out",bindir);
       if(system(syscmd) == -1)
       {
-//      printf("System command error:\n);
+        printf("System command error:\n");
       }
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/smalt map -i 1200 -j 20 -m 30 -r 888 -f samsoft -n %d -o align.sam -O hash_genome %s %s > try.out",bindir,n_nodes,file_read1,file_read2);
-      if(system(syscmd) == -1)
+      if(file_tag == 0)
       {
-//      printf("System command error:\n);
+        memset(syscmd,'\0',2000);
+        if(n_longread ==0)
+          sprintf(syscmd,"%s/smalt map -i 1200 -j 20 -m 30 -r 888 -f samsoft -n %d -O hash_genome %s %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,n_nodes,file_read1,file_read2, "($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
+        else
+          sprintf(syscmd,"%s/smalt map -i 1200 -j 20 -m 30 -r 888 -f samsoft -n %d -O hash_genome %s %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,n_nodes,file_read1,file_read2, "($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
       }
-
-      memset(syscmd,'\0',2000);
-      if(n_longread ==0)
-        sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
       else
-        sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+      {
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/smalt map -i 1200 -j 20 -m 30 -r 888 -f samsoft -n %d -o align.sam -O hash_genome %s %s > try.out",bindir,n_nodes,file_read1,file_read2);
+        if(system(syscmd) == -1)
+        {
+          printf("System command error:\n");
+        }
+
+        memset(syscmd,'\0',2000);
+        if(n_longread ==0)
+          sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
+        else
+          sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+      }
       printf("%s\n",syscmd);
       if(system(syscmd) == -1)
       {
-//      printf("System command error:\n);
+        printf("System command error:\n");
       }
     }
     else if(run_align == 0)
     {
-      if(sam_flag)
+      if(sam_flag == 1)
       {
         memset(syscmd,'\0',2000);
         if(n_longread ==0)
@@ -401,10 +488,10 @@ int main(int argc, char **argv)
         printf("%s\n",syscmd);
         if(system(syscmd) == -1)
         {
-//        printf("System command error:\n);
+          printf("System command error:\n");
         }
       }
-      else
+      else if(sam_flag == 2)
       {
         memset(syscmd,'\0',2000);
 //          sprintf(syscmd,"%s/samtools view %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,bamname,"($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
@@ -415,7 +502,7 @@ int main(int argc, char **argv)
         printf("%s\n",syscmd);
         if(system(syscmd) == -1)
         {
-//        printf("System command error:\n);
+          printf("System command error:\n");
         }
 
         memset(syscmd,'\0',2000);
@@ -423,9 +510,25 @@ int main(int argc, char **argv)
         printf("%s\n",syscmd);
         if(system(syscmd) == -1)
         {
-//          printf("System command error:\n);
+          printf("System command error:\n");
         }
       }
+      else if(sam_flag == 3)
+      {
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"cp %s align.dat",datname);
+        printf("%s\n",syscmd);
+        if(system(syscmd) == -1)
+        {
+          printf("System command error:\n");
+        }
+      }
+      else
+      {
+        printf("File input error:\n");
+        exit(1);
+      }
+
     }
 
       memset(syscmd,'\0',2000);
@@ -433,21 +536,21 @@ int main(int argc, char **argv)
       sprintf(syscmd,"%s/scaff_bwa -edge %d tarseq.tag align.dat align2.dat > try.out",bindir,len_edges);
       if(system(syscmd) == -1)
       {
-//        printf("System command error:\n);
+        printf("System command error:\n");
       }
 
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_barcode-sort align2.dat align.sort > try.out",bindir);
       if(system(syscmd) == -1)
       {
-//        printf("System command error:\n);
+        printf("System command error:\n");
       }
 
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_contigs-sort align.sort align.sort2 > try.out",bindir);
       if(system(syscmd) == -1)
       {
-//        printf("System command error:\n);
+        printf("System command error:\n");
       }
 
 /*    else
@@ -456,50 +559,106 @@ int main(int argc, char **argv)
       sprintf(syscmd,"cat %s/align.sam | awk '%s' | egrep -v '^@' > align.dat",tempa,"($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
       if(system(syscmd) == -1)
       {
-        printf("System command error:\n);
+        printf("System command error:\n");
       }
     }       */
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scaff_mapping-sort -block %d -reads %d -score %d align.sort2 barcodes.clust > try.out",bindir,len_block,num_reads,mscore);
+    sprintf(syscmd,"%s/scaff_mapping-sort -block %d -reads %d -score %d align.sort2 barcodes.clust > try.out",bindir,len_block,num1_reads,mscore);
     if(system(syscmd) == -1)
     {
-//      printf("System command error:\n);
+      printf("System command error:\n");
     }
 
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_mapping-clean barcodes.clust barcodes.clean > try.out",bindir);
     if(system(syscmd) == -1)
     {
-//      printf("System command error:\n);
+      printf("System command error:\n");
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scaff_matrix -file 1 -matrix %d -link %d -uplink %d -longread %d barcodes.clean tarseq.tag contig.dat > scaff.out",bindir,len_matrx,num_links,uplinks,n_longread);
+    sprintf(syscmd,"%s/scaff_matrix -file 1 -matrix %d -link %d -uplink %d -longread %d barcodes.clean tarseq.tag contig.dat > scaff.out",bindir,len_matrx,num1_links,uplinks,n_longread);
     if(system(syscmd) == -1)
     {
-//      printf("System command error:\n);
+      printf("System command error:\n");
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scaff_output -longread %d -gap %d tarseq.fastq contig.dat genome.fastq > try.out",bindir,n_longread,gap_len);
+    sprintf(syscmd,"%s/scaff_output -longread %d -gap %d tarseq.fastq contig.dat genome.fastq genome.agp > try.out",bindir,n_longread,gap_len);
     if(system(syscmd) == -1)
     {
-//      printf("System command error:\n);
+      printf("System command error:\n");
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scaff_rename genome.fastq genome.fasta > try.out",bindir);
+    sprintf(syscmd,"%s/scaff_RDplace align.sort2 genome.agp align.sort3 > try.out",bindir);
     if(system(syscmd) == -1)
     {
-//      printf("System command error:\n);
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_mapping-sort -block %d -reads %d -score %d align.sort3 barcodes.clust2 > try.out",bindir,len_block,num2_reads,mscore);
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_mapping-clean barcodes.clust2 barcodes.clean2 > try.out",bindir);
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_fastq -name scaff10x -len 1 genome.fastq genome-new.fastq genome.tag > try.out",bindir);
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_matrix -file 1 -matrix %d -link %d -uplink %d -longread %d barcodes.clean2 genome.tag contig.dat2 > scaff.out2",bindir,len_matrx,num2_links,uplinks,n_longread);
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_output -longread %d -gap %d genome.fastq contig.dat2 genome2.fastq genome2.agp > try.out",bindir,n_longread,gap_len);
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_rename genome2.fastq genome.fasta > try.out",bindir);
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
     }
 
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"mv genome.fasta %s",file_scaff);
     if(system(syscmd) == -1)
     {
-//      printf("System command error:\n);
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_agp2agp genome.agp genome2.agp tarseq.tag genome-all.agp > try.out",bindir);
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"mv genome-all.agp %s",file_sfagp);
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
     }
 
     if(n_debug == 0)
@@ -508,7 +667,7 @@ int main(int argc, char **argv)
       sprintf(syscmd,"rm -rf * > /dev/null");
       if(system(syscmd) == -1)
       {
-//      printf("System command error:\n);
+        printf("System command error:\n");
       }
 
       chdir(tmpdir);
@@ -517,7 +676,7 @@ int main(int argc, char **argv)
       sprintf(syscmd,"rm -rf %s > /dev/null",workdir);
       if(system(syscmd) == -1)
       {
-//      printf("System command error:\n);
+        printf("System command error:\n");
       }
     }
     return EXIT_SUCCESS;
