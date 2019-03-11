@@ -73,11 +73,47 @@ else
 fi
 
 
+##### Download and install pigz ######
+
+echo "Downloading and installing pigz"
+if [[ ! -s $bindir/pigz ]]; then
+
+    if [[ ! -d $projdir/src/pigz ]]; then
+	cd $projdir/src/
+        wget -r -np -nd https://zlib.net/pigz/pigz-2.4.tar.gz &> $projdir/src/log/pigz_wget.log
+        tar -xvzf pigz-2.4.tar.gz &> $projdir/src/log/pigz_untar.log
+        rm -f pigz-2.4.tar.gz
+    fi
+
+    if [[ ! -s $projdir/src/pigz/pigz ]]; then
+	cd $projdir/src/pigz-2.4
+	make &> $projdir/src/log/pigz_installation.log
+    fi
+
+    cp pigz $bindir
+fi
+
+if  [[ ! -s $bindir/pigz ]]; then
+    echo " !! Error: pigz not installed properly!"; 
+    echo "   Please check the log files:" 
+    echo "   Check if bwa was downloaded properly:" $projdir/src/log/pigz_cloning.log 
+    echo "   Check if the bwa was compiled properly:" $projdir/src/log/pigz_installation.log
+
+    # Cleaning up
+    cd $projdir/src
+    rm -rf $projdir/src/pigz/pigz $bindir/pigz 
+    
+    errs=$(($errs+1))
+else
+    echo " pigz succesfully installed!"
+    rm -rf $projdir/src/pigz/
+fi
+
 ###### Compile Scaff10x sources ######
 
 echo; echo "Compiling scaff10X sources"
 
-srcs=( break10x scaff_barcode-cover scaff_barcode-sort scaff_break-clean scaff_contigs-sort scaff_mapping-clean scaff_outbreak scaff_PCRdup scaff_samout scaff_BC-reads-1 scaff_break-names scaff_fastq scaff_mapping-sort scaff_outbreak-seq scaff_reads scaff_samprocess scaff10x scaff_barcode-screen scaff_BC-reads-2 scaff_bwa scaff_length scaff_matrix scaff_output scaff_rename scaff_superAGP )
+srcs=( break10x scaff_barcode-cover scaff_barcode-sort scaff_break-clean scaff_contigs-sort scaff_mapping-clean scaff_outbreak scaff_PCRdup scaff_samout scaff_BC-reads-1 scaff_break-names scaff_fastq scaff_mapping-sort scaff_outbreak-seq scaff_reads scaff_samprocess scaff10x scaff_barcode-screen scaff_BC-reads-2 scaff_bwa scaff_length scaff_matrix scaff_output scaff_rename scaff_agp2agp scaff_RDplace scaff_superAGP )
 
 cd $projdir/src
 make &> $projdir/src/log/sources_compilation.log
