@@ -54,19 +54,12 @@ static int *readIndex,*reads_tag1,*reads_tag2;
 
 /* SSAS default parameters   */
 static int n_group=0;
-static int num_reads=10;
 static int num_links=8;
-static int len_block=50000;
-static int len_edges=50000;
-static int len_matrx=2000;
-static int min_edge = 5;
-static int gap_len = 100;
-static int uplinks = 50;
-static int mscore = 20;
-static int n_longread = 1;
+static int n_gzip=1;
+static int gap_len = 20;
+static int n_nodes = 16;
 static int n_files = 1000;
 static int run_align = 1;
-static int min_len = 3000;
 
 typedef struct
 {
@@ -102,7 +95,6 @@ int main(int argc, char **argv)
     pid_t pid;
 
     seq=NULL;
-    system("ps aux | grep scaff10x; date");
 
     if(argc < 2)
     {
@@ -138,6 +130,16 @@ int main(int argc, char **argv)
        else if(!strcmp(argv[i],"-debug"))
        {
          sscanf(argv[++i],"%d",&n_debug);
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-gzip"))
+       {
+         sscanf(argv[++i],"%d",&n_gzip);
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-nodes"))
+       {
+         sscanf(argv[++i],"%d",&n_nodes);
          args=args+2;
        }
        else if(!strcmp(argv[i],"-link"))
@@ -223,14 +225,6 @@ int main(int argc, char **argv)
           else
             reads_tag1[n_r1] = 2;
 //      printf("file: %d %d %s %s\n",clen,n_r1,R1_Name1[n_r1],substring(readname,clen-2,clen));
-
-          memset(syscmd,'\0',2000);
-          sprintf(syscmd,"cp %s %s",R1_Name[n_r1],workdir);
-          if(system(syscmd) == -1)
-          {
-//           printf("System command error:\n);
-          }
-
           n_r1++;
         }
         else if((strncmp(readname,"q2=",3))==0) 
@@ -242,12 +236,6 @@ int main(int argc, char **argv)
           else
             reads_tag2[n_r2] = 2;
 //      printf("file: %d %s \n",n_r2,R2_Name[n_r2]);
-          memset(syscmd,'\0',2000);
-          sprintf(syscmd,"cp %s %s",R2_Name[n_r2],workdir);
-          if(system(syscmd) == -1)
-          {
-//           printf("System command error:\n);
-          }
           n_r2++;
         }
         i++;
@@ -287,11 +275,18 @@ int main(int argc, char **argv)
     sprintf(syscmd,"pwd");
     if(system(syscmd) == -1)
     {
-//     printf("System command error:\n);
+       printf("System command error:\n");
     }
 
     for(i=0;i<n_r1;i++)
     {
+
+       memset(syscmd,'\0',2000);
+       sprintf(syscmd,"cp %s %s",R1_Name[i],workdir);
+       if(system(syscmd) == -1)
+       {
+         printf("System command error:\n");
+       }
        if(reads_tag1[i]==1)
        {
          int clen = strlen(R1_Name1[i]);
@@ -299,17 +294,79 @@ int main(int argc, char **argv)
          sprintf(syscmd,"gunzip %s",R1_Name1[i]);
          if(system(syscmd) == -1)
          {
-//          printf("System command error:\n);
+           printf("System command error:\n");
          }
          strncpy(R1_Name2[i],R1_Name1[i],clen-3);
        }
        else
          strcpy(R1_Name2[i],R1_Name1[i]);
 
+       memset(syscmd,'\0',2000);
+       sprintf(syscmd,"%s/scaff_BC-reads-1 %s %s.RC1 %s.name > try.out",bindir,R1_Name2[i],R1_Name2[i],R1_Name2[i]);
+       if(system(syscmd) == -1)
+       {
+         printf("System command error:\n");
+       }
+
+       memset(syscmd,'\0',2000);
+       sprintf(syscmd,"rm -rf %s ",R1_Name2[i]);
+       if(system(syscmd) == -1)
+       {
+         printf("System command error:\n");
+       }
+
+       if(n_gzip == 1)
+       {
+         memset(syscmd,'\0',2000);
+         sprintf(syscmd,"%s/pigz -p %d %s.RC1",bindir,n_nodes,R1_Name2[i]);
+         if(system(syscmd) == -1)
+         {
+           printf("System command error:\n");
+         }
+       }
     }
- 
+
+    memset(readname,'\0',2000);
+    memset(syscmd,'\0',2000);
+    for(i=0;i<n_r1;i++)
+    {
+       int clen = strlen(R1_Name2[i]);
+       strncat(readname,R1_Name2[i],clen);
+       if(n_gzip == 0)
+         strncat(readname,".RC1 ",5);  
+       else
+         strncat(readname,".RC1.gz ",8);  
+    }
+
+    printf("cat read files %s\n",readname);
+    sprintf(syscmd,"cat %s > 10X-reads_1.fastq.gz",readname);
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"rm -rf %s",readname);
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"mv 10X-reads_1.fastq.gz %s",file_read1);
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
     for(i=0;i<n_r2;i++)
     {
+       memset(syscmd,'\0',2000);
+       sprintf(syscmd,"cp %s %s",R2_Name[i],workdir);
+       if(system(syscmd) == -1)
+       {
+         printf("System command error:\n");
+       }
        if(reads_tag2[i]==1)
        {
          int clen = strlen(R2_Name1[i]);
@@ -317,69 +374,69 @@ int main(int argc, char **argv)
          sprintf(syscmd,"gunzip %s",R2_Name1[i]);
          if(system(syscmd) == -1)
          {
-//          printf("System command error:\n);
+           printf("System command error:\n");
          }
          strncpy(R2_Name2[i],R2_Name1[i],clen-3);
        }
        else
          strcpy(R2_Name2[i],R2_Name1[i]);
-       memset(syscmd,'\0',2000);
-       sprintf(syscmd,"%s/scaff_BC-reads-1 %s %s.RC1 %s.name > try.out",bindir,R1_Name2[i],R1_Name2[i],R1_Name2[i]);
-       if(system(syscmd) == -1)
-       {
-//       printf("System command error:\n);
-       }
+
        memset(syscmd,'\0',2000);
        sprintf(syscmd,"%s/scaff_BC-reads-2 %s.name %s %s.RC2 > try.out",bindir,R1_Name2[i],R2_Name2[i],R2_Name2[i]);
        if(system(syscmd) == -1)
        {
-//       printf("System command error:\n);
+         printf("System command error:\n");
        }
-    } 
-    memset(readname,'\0',2000);
-    memset(syscmd,'\0',2000);
-    for(i=0;i<n_r1;i++)
-    {
-       int clen = strlen(R1_Name2[i]);
-       strncat(readname,R1_Name2[i],clen);
-       strncat(readname,".RC1 ",5);  
-    }
 
-    printf("cat read files %s\n",readname);
-    sprintf(syscmd,"cat %s > 10X-reads_1.fastq",readname);
-    if(system(syscmd) == -1)
-    {
-//    printf("System command error:\n);
+       memset(syscmd,'\0',2000);
+       sprintf(syscmd,"rm -rf %s %s.name",R2_Name2[i],R1_Name2[i]);
+       if(system(syscmd) == -1)
+       {
+         printf("System command error:\n");
+       }
+       if(n_gzip == 1)
+       {
+         memset(syscmd,'\0',2000);
+         sprintf(syscmd,"gzip %s.RC2",R2_Name2[i]);
+         sprintf(syscmd,"%s/pigz -p %d %s.RC2",bindir,n_nodes,R2_Name2[i]);
+         if(system(syscmd) == -1)
+         {
+           printf("System command error:\n");
+         }
+       }
     }
-
+ 
     memset(readname,'\0',2000);
     memset(syscmd,'\0',2000);
     for(i=0;i<n_r2;i++)
     {
        int clen = strlen(R2_Name2[i]);
        strncat(readname,R2_Name2[i],clen);
-       strncat(readname,".RC2 ",5);  
+       if(n_gzip == 0)
+         strncat(readname,".RC2 ",5);  
+       else
+         strncat(readname,".RC2.gz ",8);  
     }
 
     printf("cat read files %s\n",readname);
-    sprintf(syscmd,"cat %s > 10X-reads_2.fastq",readname);
+    sprintf(syscmd,"cat %s > 10X-reads_2.fastq.gz",readname);
     if(system(syscmd) == -1)
     {
-//    printf("System command error:\n);
+      printf("System command error:\n");
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"mv 10X-reads_1.fastq %s",file_read1);
+    sprintf(syscmd,"rm -rf %s",readname);
     if(system(syscmd) == -1)
     {
-//      printf("System command error:\n);
+      printf("System command error:\n");
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"mv 10X-reads_2.fastq %s",file_read2);
+    sprintf(syscmd,"mv 10X-reads_2.fastq.gz %s",file_read2);
     if(system(syscmd) == -1)
     {
-//      printf("System command error:\n);
+      printf("System command error:\n");
     }
 
     if(n_debug == 0)
@@ -388,7 +445,7 @@ int main(int argc, char **argv)
       sprintf(syscmd,"rm -rf * > /dev/null");
       if(system(syscmd) == -1)
       {
-//      printf("System command error:\n);
+        printf("System command error:\n");
       }
 
       chdir(tmpdir);
@@ -397,7 +454,7 @@ int main(int argc, char **argv)
       sprintf(syscmd,"rm -rf %s > /dev/null",workdir);
       if(system(syscmd) == -1)
       {
-//      printf("System command error:\n);
+        printf("System command error:\n");
       }
     }
     
