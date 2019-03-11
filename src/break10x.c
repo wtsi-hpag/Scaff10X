@@ -60,6 +60,7 @@ static int len_block=2500;
 static int len_edges=1800000000;
 static int min_cover=50;
 static int min_edge = 5;
+static int file_tag = 0;
 static int uplinks = 50;
 static int mscore = 20;
 static int gap_len = 100;
@@ -95,7 +96,7 @@ int main(int argc, char **argv)
     void File_Output(int aaa);
     void Memory_Allocate(int arr);
     char tempa[2000],tempc[2000],syscmd[2000],file_tarseq[2000],file_scaff[2000],file_break[2000],workdir[2000];
-    char file_read1[2000],file_read2[2000],samname[500],bamname[500],toolname[500];
+    char file_read1[2000],file_read2[2000],samname[500],bamname[500],toolname[500],datname[500];
     int systemRet = system (syscmd);
     int systemChd = chdir(tmpdir);
     pid_t pid;
@@ -113,6 +114,7 @@ int main(int argc, char **argv)
          printf("       reads  (5)   - minimum number of reads per barcode\n");
          printf("       score  (20)  - minimum average mapping score on an area covered by reads with the same barcode\n");
          printf("       cover  (50)  - minimum barcode coverage at the breakpoint\n");
+         printf("       file   (0)   - do not output sam file| (1) - output sam the file\n");
          printf("       gap    (100) - gap size in building scaffold\n");
          exit(1);
     }
@@ -146,14 +148,27 @@ int main(int argc, char **argv)
        else if(!strcmp(argv[i],"-bam"))
        {
          run_align = 0;
-         sam_flag = 0;
+         sam_flag = 2;
          sscanf(argv[++i],"%s",bamname);
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-dat"))
+       {
+         run_align = 0;
+         file_tag = 2;
+         sam_flag = 3;
+         sscanf(argv[++i],"%s",datname);
          args=args+2;
        }
        else if(!strcmp(argv[i],"-align"))
        {
          memset(toolname,'\0',500);
          sscanf(argv[++i],"%s",toolname);
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-file"))
+       {
+         sscanf(argv[++i],"%d",&file_tag);
          args=args+2;
        }
        else if(!strcmp(argv[i],"-score"))
@@ -183,6 +198,7 @@ int main(int argc, char **argv)
          printf("       reads  (10)  - minimum number of reads per barcode\n");
          printf("       score  (20)  - minimum average mapping score on an area covered by reads with the same barcode\n");
          printf("       cover  (50)  - minimum barcode coverage at the breakpoint\n");
+         printf("       file   (0)   - do not output sam file | (1) - output sam the file\n");
          printf("       gap    (100) - gap size in building scaffold\n");
          exit(1);
        }
@@ -334,15 +350,29 @@ int main(int argc, char **argv)
 //      printf("System command error:\n);
       }
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s > align.sam",bindir,n_nodes,file_read1,file_read2);
-      if(system(syscmd) == -1)
+      if(file_tag == 1)
       {
-//      printf("System command error:\n);
-      }
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s > align.sam",bindir,n_nodes,file_read1,file_read2);
+        if(system(syscmd) == -1)
+        {
+//        printf("System command error:\n);
+        }
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+      }
+      else if(file_tag == 0)
+      {
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,n_nodes,file_read1,file_read2,"($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+//        sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s > align.sam",bindir,n_nodes,file_read1,file_read2);
+      }
+      else
+      {
+        printf("File input error!\n");
+        exit(1);
+      }
       printf("%s\n",syscmd);
       if(system(syscmd) == -1)
       {
@@ -358,41 +388,50 @@ int main(int argc, char **argv)
 //      printf("System command error:\n);
       }
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/smalt map -i 1200 -j 20 -m 30 -r 888 -f samsoft -n %d -o align.sam -O hash_genome %s %s > try.out",bindir,n_nodes,file_read1,file_read2);
-      if(system(syscmd) == -1)
+      if(file_tag == 1)
       {
-//      printf("System command error:\n);
-      }
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/smalt map -i 1200 -j 20 -m 30 -r 888 -f samsoft -n %d -o align.sam -O hash_genome %s %s > try.out",bindir,n_nodes,file_read1,file_read2);
+        if(system(syscmd) == -1)
+        {
+//        printf("System command error:\n);
+        }
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+      }
+      else
+      {
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/smalt map -i 1200 -j 20 -m 30 -r 888 -f samsoft -n %d -O hash_genome %s %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,n_nodes,file_read1,file_read2,"($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+//        sprintf(syscmd,"%s/smalt map -i 1200 -j 20 -m 30 -r 888 -f samsoft -n %d -o align.sam -O hash_genome %s %s > try.out",bindir,n_nodes,file_read1,file_read2);
+      }
       printf("%s\n",syscmd);
       if(system(syscmd) == -1)
       {
-//      printf("System command error:\n);
+        printf("System command error:\n");
       }
     }
     else if(run_align == 0)
     {
-      if(sam_flag)
+      if(sam_flag == 1)
       {
         memset(syscmd,'\0',2000);
         sprintf(syscmd,"cat %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",samname,"($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
         printf("%s\n",syscmd);
         if(system(syscmd) == -1)
         {
-//        printf("System command error:\n);
+          printf("System command error:\n");
         }
       }
-      else
+      else if(sam_flag == 2) 
       {
         memset(syscmd,'\0',2000);
         sprintf(syscmd,"%s/samtools view %s | awk '%s' | egrep -v '^@' > align0.dat",bindir,bamname,"($4!=0)&&($2<100)&&($5>=0){print $1,$12,$2,$3,$4,$5}");
         printf("%s\n",syscmd);
         if(system(syscmd) == -1)
         {
-//        printf("System command error:\n);
+          printf("System command error:\n");
         }
     
         memset(syscmd,'\0',2000);
@@ -400,8 +439,23 @@ int main(int argc, char **argv)
         printf("%s\n",syscmd);
         if(system(syscmd) == -1)
         {
-//          printf("System command error:\n);
+          printf("System command error:\n");
         }
+      }
+      else if(sam_flag == 3)
+      {
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"cp %s align.dat",datname);
+        printf("%s\n",syscmd);
+        if(system(syscmd) == -1)
+        {
+          printf("System command error:\n");
+        }
+      }
+      else
+      {
+        printf("File input error:\n");
+        exit(1);
       }
     }
 
@@ -410,7 +464,7 @@ int main(int argc, char **argv)
       sprintf(syscmd,"%s/scaff_bwa -edge %d tarseq.tag align.dat align2.dat > try.out",bindir,len_edges);
       if(system(syscmd) == -1)
       {
-//        printf("System command error:\n);
+        printf("System command error:\n");
       }
 
       memset(syscmd,'\0',2000);
@@ -442,10 +496,24 @@ int main(int argc, char **argv)
       }
 
       memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align2.dat");
+      if(system(syscmd) == -1)
+      {
+        printf("System command error:\n");
+      }
+
+      memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_AAA align.sort_AAA > try.out",bindir);
       if(system(syscmd) == -1)
       {
 //        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align2.dat_AAA");
+      if(system(syscmd) == -1)
+      {
+        printf("System command error:\n");
       }
 
       memset(syscmd,'\0',2000);
@@ -456,10 +524,24 @@ int main(int argc, char **argv)
       }
 
       memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align2.dat_CCC");
+      if(system(syscmd) == -1)
+      {
+        printf("System command error:\n");
+      }
+
+      memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_GGG align.sort_GGG > try.out",bindir);
       if(system(syscmd) == -1)
       {
 //        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align2.dat_GGG");
+      if(system(syscmd) == -1)
+      {
+        printf("System command error:\n");
       }
 
       memset(syscmd,'\0',2000);
@@ -470,10 +552,24 @@ int main(int argc, char **argv)
       }
 
       memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align2.dat_TTT");
+      if(system(syscmd) == -1)
+      {
+        printf("System command error:\n");
+      }
+
+      memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_contigs-sort align.sort_AAA align.sort2_AAA > try.out",bindir);
       if(system(syscmd) == -1)
       {
 //        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align.sort_AAA");
+      if(system(syscmd) == -1)
+      {
+        printf("System command error:\n");
       }
 
       memset(syscmd,'\0',2000);
@@ -484,6 +580,13 @@ int main(int argc, char **argv)
       }
 
       memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align.sort_CCC");
+      if(system(syscmd) == -1)
+      {
+        printf("System command error:\n");
+      }
+
+      memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_contigs-sort align.sort_GGG align.sort2_GGG > try.out",bindir);
       if(system(syscmd) == -1)
       {
@@ -491,10 +594,24 @@ int main(int argc, char **argv)
       }
 
       memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align.sort_GGG");
+      if(system(syscmd) == -1)
+      {
+        printf("System command error:\n");
+      }
+
+      memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_contigs-sort align.sort_TTT align.sort2_TTT > try.out",bindir);
       if(system(syscmd) == -1)
       {
 //        printf("System command error:\n);
+      }
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align.sort_TTT");
+      if(system(syscmd) == -1)
+      {
+        printf("System command error:\n");
       }
 
 /*    else
@@ -515,10 +632,24 @@ int main(int argc, char **argv)
     }
 
     memset(syscmd,'\0',2000);
+    sprintf(syscmd,"rm -rf align.sort2_AAA");
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_CCC align.sort3_CCC > try.out",bindir);
     if(system(syscmd) == -1)
     {
 //        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"rm -rf align.sort2_CCC");
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
     }
 
     memset(syscmd,'\0',2000);
@@ -529,10 +660,24 @@ int main(int argc, char **argv)
     }
 
     memset(syscmd,'\0',2000);
+    sprintf(syscmd,"rm -rf align.sort2_GGG");
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_TTT align.sort3_TTT > try.out",bindir);
     if(system(syscmd) == -1)
     {
 //        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"rm -rf align.sort2_TTT");
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
     }
 
     memset(syscmd,'\0',2000);
@@ -543,10 +688,24 @@ int main(int argc, char **argv)
     }
 
     memset(syscmd,'\0',2000);
+    sprintf(syscmd,"rm -rf align.sort3_AAA");
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_PCRdup align.sort3_CCC align.sort4_CCC > try.out",bindir);
     if(system(syscmd) == -1)
     {
 //        printf("System command error:\n);
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"rm -rf align.sort3_CCC");
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
     }
 
     memset(syscmd,'\0',2000);
@@ -557,6 +716,13 @@ int main(int argc, char **argv)
     }
 
     memset(syscmd,'\0',2000);
+    sprintf(syscmd,"rm -rf align.sort3_GGG");
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_PCRdup align.sort3_TTT align.sort4_TTT > try.out",bindir);
     if(system(syscmd) == -1)
     {
@@ -564,10 +730,24 @@ int main(int argc, char **argv)
     }
 
     memset(syscmd,'\0',2000);
+    sprintf(syscmd,"rm -rf align.sort3_TTT");
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
     sprintf(syscmd,"cat align.sort4_AAA align.sort4_CCC align.sort4_GGG align.sort4_TTT > align.sort4");
     if(system(syscmd) == -1)
     {
-//        printf("System command error:\n);
+      printf("System command error:\n");
+    }
+
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"rm -rf align.sort4_AAA align.sort4_CCC align.sort4_GGG align.sort4_TTT");
+    if(system(syscmd) == -1)
+    {
+      printf("System command error:\n");
     }
 
     memset(syscmd,'\0',2000);
