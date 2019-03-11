@@ -1,13 +1,13 @@
 /****************************************************************************
  ****************************************************************************
  *                                                                          *
- *  Copyright (C) 2017  Genome Research Ltd.                                *
+ *  Copyright (C) 2018  Genome Research Ltd.                                *
  *                                                                          *
  *  Author: Zemin Ning (zn1@sanger.ac.uk)                                   *
  *                                                                          *
- *  This file is part of scaff10x pipeline.                                 *
+ *  This file is part of Scaff10X pipeline.                                 *
  *                                                                          *
- *  Scaff10x is a free software: you can redistribute it and/or modify it   *
+ *  Scaff10X is a free software: you can redistribute it and/or modify it   *
  *  under the terms of the GNU General Public License as published by the   *
  *  Free Software Foundation, either version 3 of the License, or (at your  *
  *  option) any later version.                                              *
@@ -48,9 +48,9 @@
 #define Max_N_Pair 100
 static int *ctg_index,*ctg_mask;
 static int *ctg_rcdex,*ctg_list,*ctg_head;
-static int *ctg_sfdex,*ctg_length,*ctg_mscore;
+static int *ctg_sfdex,*ctg_length,*ctg_mscore,*ctg_nlinks;
 static int IMOD = 10;
-static int Max_Gap = 100;
+static int Max_Gap = 200;
 static int longread_flag =1;
 static B64_long *cigar_head,sBase;
 
@@ -67,8 +67,8 @@ fasta *sub;
 
 int main(int argc, char **argv)
 {
-    FILE *fp,*namef,*fpOutfast;
-    int i,j,nSeq,args,i_contig,idt,stopflag,num_hit,n_scaff;
+    FILE *fp,*namef,*fpOutfast,*fpOutfast2;
+    int i,j,nSeq,args,i_contig,idt,stopflag,num_hit,n_scaff,rcdex;
     char *st,*ed;
     char line[2000]={0},ctgnameout[Max_N_NameBase],tmptext[Max_N_NameBase],tmptext2[Max_N_NameBase];
     char **cmatrix(B64_long nrl,B64_long nrh,B64_long ncl,B64_long nch);
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 
     if(argc < 2)
     {
-      printf("Usage: %s -longread 1 -gap 100 <input_scaffold_fastq> <10x-barcode_file> <output_scaffold_fastq> \n",argv[0]);
+      printf("Usage: %s <input_scaffold_fastq> <10X_scaffold-structure_file> <output_scaffold_fastq> <output_scaffold_agp>\n",argv[0]);
       exit(1);
     }
 
@@ -124,20 +124,24 @@ int main(int argc, char **argv)
     nSeq = num_seqque;
     fastaUC(seq,nSeq);
 
-    if((fp = fopen(argv[args+1],"r")) == NULL)
+    if((namef = fopen(argv[args+1],"r")) == NULL)
     {
       printf("ERROR main:: reads group file \n");
       exit(1);
     }
     i_contig = 0;
-    while(!feof(fp))
+    while(!feof(namef))
     {
-      fgets(line,2000,fp);
-      if(feof(fp)) break;
+      if(fgets(line,2000,namef) == NULL)
+      {
+//        printf("fgets command error:\n);
+      }
+      if(feof(namef)) break;
       i_contig++;
     }
-    fclose(fp);
+    fclose(namef);
 
+      printf("num: %d %s\n",nSeq,argv[args+1]);
     i_contig = i_contig + nSeq;
     if((ctg_list= (int *)calloc(i_contig,sizeof(int))) == NULL)
     {
@@ -157,6 +161,11 @@ int main(int argc, char **argv)
     if((ctg_mscore= (int *)calloc(i_contig,sizeof(int))) == NULL)
     {
       printf("ERROR Memory_Allocate: Align_Process - ctg_length\n");
+      exit(1);
+    }
+    if((ctg_nlinks= (int *)calloc(i_contig,sizeof(int))) == NULL)
+    {
+      printf("ERROR Memory_Allocate: Align_Process - ctg_nlinks\n");
       exit(1);
     }
     if((ctg_length= (int *)calloc(i_contig,sizeof(int))) == NULL)
@@ -186,11 +195,14 @@ int main(int argc, char **argv)
     }
     i = 0;
 
-    while(fscanf(namef,"%s %d %d %d %d",tmptext,&ctg_sfdex[i],&ctg_index[i],&ctg_length[i],&ctg_rcdex[i])!=EOF)
+    while(fscanf(namef,"%s %d %d %d %d",tmptext,&ctg_sfdex[i],&ctg_index[i],&ctg_length[i],&rcdex)!=EOF)
     {
       st = strrchr(tmptext,':');
+      ed = strrchr(tmptext,'_');
       ctg_mscore[ctg_index[i]] = atoi(st+1);
+      ctg_nlinks[ctg_index[i]] = atoi(ed+1);
       ctg_mask[ctg_index[i]] = 1; 
+      ctg_rcdex[ctg_index[i]] = rcdex;
       i++;
     }
     fclose(namef);
@@ -239,23 +251,29 @@ int main(int argc, char **argv)
       printf("ERROR main:: reads group file: %s \n",argv[args]);
       exit(1);
     }
+    if((fpOutfast2 = fopen(argv[args+3],"w")) == NULL)
+    {
+      printf("ERROR main:: reads group file: %s \n",argv[args]);
+      exit(1);
+    }
 
     n_scaff = 0;
     for(i=0;i<num_hit;i++)
     {
-       int seq_st,seq_ed,rc,seq_len,st2,ed2;
+       int seq_st,seq_ed,rc,seq_len,st2,ed2,sup_len;
        int trash_flag = 0;
        char *dpp;
        seqp = seq + ctg_index[ctg_head[i]];
        fprintf(fpOutfast,"@scaff10x_%d\n",n_scaff);
 //       printf("@%s\n",seqp->name);
+       sup_len = 0;
        for(j=0;j<ctg_list[i];j++)
        {
           int idd = ctg_head[i]+j;
           seqp = seq + ctg_index[idd];
           seq_st = 0;
           seq_ed = seqp->length;
-          if(ctg_rcdex[idd] == 0)
+          if(ctg_rcdex[ctg_index[idd]] == 0)
           {
             for(rc=seq_st;rc<seq_ed;rc++)
                fprintf(fpOutfast,"%c",seqp->data[rc]);
@@ -273,11 +291,14 @@ int main(int argc, char **argv)
                 dpp--;
              }
           }
+          fprintf(fpOutfast2,"scaff10x_%d %d %d %d %d %d %d %d\n",n_scaff,ctg_index[idd],seqp->length,sup_len,Max_Gap,ctg_rcdex[ctg_index[idd]],ctg_mscore[ctg_index[idd]],ctg_nlinks[ctg_index[idd]]);
           if(j<(ctg_list[i]-1))
           {
             for(rc=0;rc<Max_Gap;rc++)
                fprintf(fpOutfast,"%c",'N');
+            sup_len = sup_len + Max_Gap;
           }
+          sup_len = sup_len + seqp->length;
        }
        fprintf(fpOutfast,"\n");
        fprintf(fpOutfast,"+\n");
@@ -316,10 +337,12 @@ int main(int argc, char **argv)
          for(rc=0;rc<seq_ed;rc++)
              putc(40+041,fpOutfast);
          fprintf(fpOutfast,"\n");
+         fprintf(fpOutfast2,"scaff10x_%d %d %d %d %d %d %d %d\n",n_scaff,i,seqp->length,0,0,Max_Gap,6000,0);
          n_scaff++;
        }
     }
     fclose(fpOutfast);
+    fclose(fpOutfast2);
     return EXIT_SUCCESS;
 
 }
