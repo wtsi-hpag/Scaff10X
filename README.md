@@ -39,67 +39,50 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 
 ### Run the pipelines
 
-#### Prepare the fastq files:
-#### (1) Make a file with read files
-#### Say you have a number of R1, R2 files, you make a file named as file.dat
-
-q1=/lustre/scratch116/vr/projects/Tes1_S1_L008_R1_001.fastq.gz
-
-q2=/lustre/scratch116/vr/projects/Tes1_S1_L008_R2_001.fastq.gz
-
-q1=/lustre/scratch116/vr/projects/Tes1_S2_L008_R1_001.fastq.gz
-
-q2=/lustre/scratch116/vr/projects/Tes1_S2_L008_R2_001.fastq.gz
-
-q1=/lustre/scratch116/vr/projects/Tes1_S3_L008_R1_001.fastq.gz
-
-q2=/lustre/scratch116/vr/projects/Tes1_S3_L008_R2_001.fastq.gz
-
-q1=/lustre/scratch116/vr/projects/Tes1_S4_L008_R1_001.fastq.gz
-
-q2=/lustre/scratch116/vr/projects/Tes1_S4_L008_R2_001.fastq.gz
-
-	$ /full/path/to/Scaff10X/scaff_reads file.dat reads_1.fastq reads_2.fastq > try.out
-
-        where: file.dat is the file pointing read locations; reads_1.fastq reads_2.fastq are output read files with the barcodes cut out of the reads and attached to the names.
-
-#### (2) Process files one by one
-
-	$ /full/path/to/Scaff10X/src/scaff_BC-reads-1 read_1.fastq read-BC_1.fastq read-BC_1.name 
-	$ /full/path/to/Scaff10X/src/scaff_BC-reads-2 read-BC_1.name read_2.fastq read-BC_2.fastq 
-	
-	where:
-		read_1.fastq and read_2.fastq:   the raw 10Xg read fastq files
-		read-BC_1.fastq and read-BC_2.fastq: the output fastq files to use with scaff10x/break10x.
-
-Warning: for multiple runs prepare a read-BC_1.fastq and read-BC_2.fastq pair for each run and then cat them together.
-This is to avoid using scaff_BC-reads-1 and scaff_BC-reads-2 on files with too many reads.
-		
-
 #### Run scaff10x:
            $ /full/path/to/Scaff10X/src/scaff10X -nodes <nodes> -align <aligner> -score <score> \
-	   	 -matrix <matrix_size> -reads <min_reads> -longread <aggressive> -gap <gap_size> \
-		 -edge <edge_len> -link <n_links> -block <block>  \
-		 [ -sam input.sam ] [ -bam input.bam ] \
-		 draft-asssembly.fasta read-BC_1.fastq read-BC_2.fastq output_scaffolds.fasta
+	   	 -matrix <matrix_size> -read-s1 <min_reads_s1> -read-s2 <min_reads_s2> -longread <aggressive> -gap <gap_size> \
+		 -edge <edge_len> -link-s1 <n_links_s1> -link-s2 <n_links_s2> -block <block>  \
+		 [ -data input.dat ] [ -sam input.sam ] [ -bam input.bam ] \
+		 draft-asssembly.fasta output_scaffolds.fasta
            
 
 	       Parameters:
-             nodes:    number of CPUs requested  [ default = 30 ]
-             score: averaged mapping score on each barcode fragment [ default = 20 ]
-             aligner:  sequence aligner: bwa or smalt [ default = bwa ]
-             matrix_size:   relation matrix size [ default = 2000 ]
-             min_reads:  minimum number of reads per barcode [ default = 10 ]
-             edge_len:   length of mapped reads to consider for scaffolding [ default = 50000 ]
-             n_links:      minimum number of shared barcodes [ default = 8 ]
+             nodes:        number of CPUs requested  [ default = 30 ]
+             score:        averaged mapping score on each barcode fragment [ default = 20 ]
+             aligner:      sequence aligner: bwa or smalt [ default = bwa ]
+             matrix_size:  relation matrix size [ default = 2000 ]
+             min_reads_s1: step 1: minimum number of reads per barcode [ default = 10 ]
+             min_reads_s2: step 2: minimum number of reads per barcode [ default = 10 ]
+             edge_len:     length of mapped reads to consider for scaffolding [ default = 50000 ]
+             n_links_s1:   step 1: minimum number of shared barcodes [ default = 8 ]
+             n_links_s2:   step 2: minimum number of shared barcodes [ default = 8 ]
              aggressive:   1 - aggressively mapping filtering on small PacBio/ONT contigs; 
-	     		       0 - no aggressive for short read assembly  [ default = 1 ]
-             block:    length to determine for nearest neighbours [ default = 2500 ]
-             gap:     gap size in building scaffold [ default = 100 ]
+	     		   0 - no aggressive for short read assembly  [ default = 1 ]
+             block:        length to determine for nearest neighbours [ default = 50000 ]
+             gap:          gap size in building scaffold [ default = 100 ]
 	     
 	       Files
+                ==========
+	        input.dat:   input a text file to point the locations of the reads in paired files
+
+q1=/lustre/scratch116/vr/projects/Tes1_S1_L008_R1_001.fastq.gz
+q2=/lustre/scratch116/vr/projects/Tes1_S1_L008_R2_001.fastq.gz
+q1=/lustre/scratch116/vr/projects/Tes1_S2_L008_R1_001.fastq.gz
+q2=/lustre/scratch116/vr/projects/Tes1_S2_L008_R2_001.fastq.gz
+q1=/lustre/scratch116/vr/projects/Tes1_S3_L008_R1_001.fastq.gz
+q2=/lustre/scratch116/vr/projects/Tes1_S3_L008_R2_001.fastq.gz
+q1=/lustre/scratch116/vr/projects/Tes1_S4_L008_R1_001.fastq.gz
+q2=/lustre/scratch116/vr/projects/Tes1_S4_L008_R2_001.fastq.gz
+ 
+		             The scaff10x pipeline will read the gzipped files, trim the barcodes and pipe to bwa for alignment	
+                             The input.dat can be local or with full path
+
+                ==========
 	        input.sam:   input a sam file if it already exists, 
 				and skip the mapping (Optional, please provde full path)
+
+                ==========
 	        input.bam:   input a bam file which had been prodcued by using lariat in longranger, 
 				and skip the mapping (Optional, please provde full path)
 				(a). rename the assembly file (Optional):
