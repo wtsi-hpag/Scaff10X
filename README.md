@@ -117,6 +117,9 @@ Some notes and suggestions:
 	    mapping score filtering on small PacBio/ONT contigs.  
 
 
+#### Remember: you only need to run scaff10x once (previously we suggested two iterations)
+
+
 #### Run break10x:
            
 	   $ /full/path/to/Scaff10X/src/break10x -nodes <nodes>  -score <score> -reads <min_reads> \
