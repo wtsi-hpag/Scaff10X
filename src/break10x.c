@@ -96,7 +96,7 @@ int main(int argc, char **argv)
     void File_Output(int aaa);
     void Memory_Allocate(int arr);
     char tempa[2000],tempc[2000],syscmd[2000],file_tarseq[2000],file_scaff[2000],file_break[2000],workdir[2000];
-    char file_read1[2000],file_read2[2000],samname[500],bamname[500],toolname[500],datname[500];
+    char file_read1[2000],file_read2[2000],samname[500],bamname[500],toolname[500],datname[500],file_datas[2000];
     int systemRet = system (syscmd);
     int systemChd = chdir(tmpdir);
     pid_t pid;
@@ -152,9 +152,9 @@ int main(int argc, char **argv)
          sscanf(argv[++i],"%s",bamname);
          args=args+2;
        }
-       else if(!strcmp(argv[i],"-dat"))
+       else if(!strcmp(argv[i],"-data"))
        {
-         run_align = 0;
+         run_align = 1;
          file_tag = 2;
          sam_flag = 3;
          sscanf(argv[++i],"%s",datname);
@@ -265,11 +265,20 @@ int main(int argc, char **argv)
     memset(file_read2,'\0',2000);
     memset(file_scaff,'\0',2000);
     memset(file_break,'\0',2000);
+    memset(file_datas,'\0',2000);
     sprintf(file_tarseq,"%s/%s",tempa,argv[args]);
-    sprintf(file_read1,"%s/%s",tempa,argv[args+1]);
-    sprintf(file_read2,"%s/%s",tempa,argv[args+2]);
-    sprintf(file_scaff,"%s/%s",tempa,argv[args+3]);
-    sprintf(file_break,"%s/%s",tempa,argv[args+4]);
+    if((run_align == 0)||(file_tag == 2))
+    {
+      sprintf(file_scaff,"%s/%s",tempa,argv[args+1]);
+      sprintf(file_break,"%s/%s",tempa,argv[args+2]);
+    }
+    else
+    {
+      sprintf(file_read1,"%s/%s",tempa,argv[args+1]);
+      sprintf(file_read2,"%s/%s",tempa,argv[args+2]);
+      sprintf(file_scaff,"%s/%s",tempa,argv[args+3]);
+      sprintf(file_break,"%s/%s",tempa,argv[args+4]);
+    }
 
     if((namef = fopen(file_tarseq,"r")) == NULL)
     {
@@ -293,44 +302,71 @@ int main(int argc, char **argv)
 
     if(run_align)
     {
-      if((namef = fopen(file_read1,"r")) == NULL)
+      if(file_tag != 2)
       {
-        printf("File not in the working directory!\n");
-        if((namef = fopen(argv[args+1],"r")) == NULL)
+        if((namef = fopen(file_read1,"r")) == NULL)
         {
-          printf("File %s not found and please copy it to your working directory!\n",argv[args+1]);
-          exit(1);
+          printf("File not in the working directory!\n");
+          if((namef = fopen(argv[args+1],"r")) == NULL)
+          {
+            printf("File %s not found and please copy it to your working directory!\n",argv[args+1]);
+            exit(1);
+          }
+          else
+          {
+            memset(file_read1,'\0',2000);
+            strcpy(file_read1,argv[args+1]);
+            printf("Input read1 file: %s\n",file_read1);
+          }
         }
         else
         {
-          memset(file_read1,'\0',2000);
-          strcpy(file_read1,argv[args+1]);
           printf("Input read1 file: %s\n",file_read1);
-        }
-      }
-      else
-      {
-        printf("Input read1 file: %s\n",file_read1);
-      } 
+        } 
 
-      if((namef = fopen(file_read2,"r")) == NULL)
-      {
-        printf("File not in the working directory!\n");
-        if((namef = fopen(argv[args+2],"r")) == NULL)
+        if((namef = fopen(file_read2,"r")) == NULL)
         {
-          printf("File %s not found and please copy it to your working directory!\n",argv[args+2]);
-          exit(1);
+          printf("File not in the working directory!\n");
+          if((namef = fopen(argv[args+2],"r")) == NULL)
+          {
+            printf("File %s not found and please copy it to your working directory!\n",argv[args+2]);
+            exit(1);
+          }
+          else
+          {
+            memset(file_read2,'\0',2000);
+            strcpy(file_read2,argv[args+2]);
+            printf("Input read2 file: %s\n",file_read2);
+          }
         }
         else
         {
-          memset(file_read2,'\0',2000);
-          strcpy(file_read2,argv[args+2]);
           printf("Input read2 file: %s\n",file_read2);
         }
       }
       else
       {
-        printf("Input read2 file: %s\n",file_read2);
+        sprintf(file_datas,"%s/%s",tempa,datname);
+        printf("www: %s %s\n",file_datas,datname);
+        if((namef = fopen(file_datas,"r")) == NULL)
+        {
+          printf("File not in the working directory!\n");
+          if((namef = fopen(datname,"r")) == NULL)
+          {
+            printf("File %s not found and please copy it to your working directory!\n",datname);
+            exit(1);
+          }
+          else
+          {
+            memset(file_datas,'\0',2000);
+            strcpy(file_datas,datname);
+            printf("Input data file: %s\n",file_datas);
+          }
+        }
+        else
+        {
+          printf("Input data file: %s\n",file_datas);
+        }
       } 
     }
 
@@ -350,7 +386,13 @@ int main(int argc, char **argv)
 //      printf("System command error:\n);
       }
 
-      if(file_tag == 1)
+      if(file_tag == 0)
+      {
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,n_nodes,file_read1,file_read2,"($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
+//        sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s > align.sam",bindir,n_nodes,file_read1,file_read2);
+      }
+      else if(file_tag == 1)
       {
         memset(syscmd,'\0',2000);
         sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s > align.sam",bindir,n_nodes,file_read1,file_read2);
@@ -362,11 +404,10 @@ int main(int argc, char **argv)
         memset(syscmd,'\0',2000);
         sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
       }
-      else if(file_tag == 0)
+      else if(file_tag == 2)
       {
         memset(syscmd,'\0',2000);
-        sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,n_nodes,file_read1,file_read2,"($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
-//        sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s > align.sam",bindir,n_nodes,file_read1,file_read2);
+        sprintf(syscmd,"%s/scaff_FilePreProcess -t 2 -n 1 %s - |%s/bwa mem -p -t %d tarseq.fastq -  | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,file_datas,bindir,n_nodes,"($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
       }
       else
       {
