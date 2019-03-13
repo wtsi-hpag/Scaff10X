@@ -31,7 +31,7 @@ Requirements for compiling: gcc
 If everything compiled successfully you must see the final comment: 
 		"Congrats: installation successful!"		
 
-(Tested with gcc-4.9.2)
+(Tested with gcc-4.9.2, the pipeline can only work with gcc-4.9.2 or late!)
 
 
 #### External packages
@@ -119,7 +119,7 @@ Some notes and suggestions:
 	    
 
 	       Parameters:
-	     input.dat:  input a text file to point the locations of the reads in paired files, see the file format for scaff10x
+	         input.dat:  input a text file to point the locations of the reads in paired files, see the file format for scaff10x
              nodes:      number of CPUs requested  [ default = 30 ]
              score:      minimum average mapping score on an area covered by reads with 
 	     		 the same barcode [ default = 20 ]
