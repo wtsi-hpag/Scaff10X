@@ -22,7 +22,15 @@ Pipeline steps:
       
 
 ### Download and Compile:
-Requirements for compiling: gcc
+Requirements for compiling: gcc gcc-4.9.2 or late:
+
+If you see this message,
+cc1: error: unrecognised command line option ‘-std=c11’
+make: *** [break10x.o] Error 1
+
+you need a higher version of gcc
+CC= /software/gcc-4.9.2/bin/gcc
+
 
     $ git clone  https://github.com/wtsi-hpag/Scaff10X.git 
     $ cd Scaff10X
@@ -30,9 +38,6 @@ Requirements for compiling: gcc
 		
 If everything compiled successfully you must see the final comment: 
 		"Congrats: installation successful!"		
-
-### gcc selection:
-(Tested with gcc-4.9.2, the pipeline can only work with gcc-4.9.2 or late!)
 
 
 #### External packages
