@@ -31,6 +31,7 @@ Requirements for compiling: gcc
 If everything compiled successfully you must see the final comment: 
 		"Congrats: installation successful!"		
 
+### gcc selection:
 (Tested with gcc-4.9.2, the pipeline can only work with gcc-4.9.2 or late!)
 
 
