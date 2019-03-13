@@ -76,7 +76,7 @@ q1=/lustre/scratch116/vr/projects/Tes1_S4_L008_R1_001.fastq.gz \
 q2=/lustre/scratch116/vr/projects/Tes1_S4_L008_R2_001.fastq.gz \
  
 		             The scaff10x pipeline will read the gzipped files, trim the barcodes and pipe to bwa for alignment	
-                             The input.dat can be local or with full path
+                             There will be no sam file anymore in this way. The input.dat can be local or with full path
 
                 ==========
 	        input.sam:   input a sam file if it already exists, 
@@ -114,14 +114,15 @@ Some notes and suggestions:
 #### Run break10x:
            
 	   $ /full/path/to/Scaff10X/src/break10x -nodes <nodes>  -score <score> -reads <min_reads> \
-		-gap <gap_size> -cover <cover> -ratio <ratio> \
-		scaffolds.fasta read-BC_1.fastq read-BC_2.fastq scaffolds-break.fasta scaffolds-break.name	     
+		-gap <gap_size> -cover <cover> -ratio <ratio> -data <input.dat>\
+		scaffolds.fasta scaffolds-break.fasta scaffolds-break.name	     
 	    
 
 	       Parameters:
-             nodes:    number of CPUs requested  [ default = 30 ]
-             score:    minimum average mapping score on an area covered by reads with 
-	     		the same barcode [ default = 20 ]
+	     input.dat:  input a text file to point the locations of the reads in paired files, see the file format for scaff10x
+             nodes:      number of CPUs requested  [ default = 30 ]
+             score:      minimum average mapping score on an area covered by reads with 
+	     		 the same barcode [ default = 20 ]
              min_reads:  minimum number of reads per barcode [ default = 5 ]
 	         cover: minimum barcode coverage at the breakpoint [ default = 50 ]
 	         gap:  scaffold gap size added by scaff10x (if used). 
@@ -154,3 +155,27 @@ Example:
 	Break2: Scaff10x_2 2 17232850 17798733 21 176 100
 	Break2: Scaff10x_9 9 3709193 3904076 37 451 100
 	Break1: Scaff10x_10 10 3713358 5150262 0 131 0
+
+#### Other applications:
+           
+##### Process barcodes and output paired gzip files
+    
+	   $ /full/path/to/Scaff10X/src/scaff_reads -nodes <nodes>  input.dat genome-BC_1.fastq.gz genome-BC_2.fastq.gz  \
+              Here input.dat is a text file to point the locations of the reads in paired files  \
+              The paired reads can also be used for other applications such as genomeScope or jellyfish etc
+	    
+##### Run scaff10x in another way   
+
+           $ /full/path/to/Scaff10X/src/scaff10X -nodes <nodes> -align <aligner> -score <score> \
+	   	 -matrix <matrix_size> -read-s1 <min_reads_s1> -read-s2 <min_reads_s2> -longread <aggressive> -gap <gap_size> \
+		 -edge <edge_len> -link-s1 <n_links_s1> -link-s2 <n_links_s2> -block <block>  \
+		 draft-asssembly.fasta genome-BC_1.fastq.gz genome-BC_2.fastq.gz output_scaffolds.fasta \
+	    
+##### Run break10x in another way   
+
+	   $ /full/path/to/Scaff10X/src/break10x -nodes <nodes>  -score <score> -reads <min_reads> \
+		-gap <gap_size> -cover <cover> -ratio <ratio> \
+		scaffolds.fasta genome-BC_1.fastq.gz genome-BC_2.fastq.gz scaffolds-break.fasta scaffolds-break.name	     
+	    
+
+
