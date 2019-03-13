@@ -29,7 +29,7 @@ cc1: error: unrecognised command line option ‘-std=c11’
 make: *** [break10x.o] Error 1
 
 you need a higher version of gcc
-CC= /software/gcc-4.9.2/bin/gcc
+CC= /software/gcc-4.9.2/bin/gcc in the makefile
 
 
     $ git clone  https://github.com/wtsi-hpag/Scaff10X.git 
