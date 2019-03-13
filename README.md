@@ -66,14 +66,14 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
                 ==========
 	        input.dat:   input a text file to point the locations of the reads in paired files
 
-q1=/lustre/scratch116/vr/projects/Tes1_S1_L008_R1_001.fastq.gz
-q2=/lustre/scratch116/vr/projects/Tes1_S1_L008_R2_001.fastq.gz
-q1=/lustre/scratch116/vr/projects/Tes1_S2_L008_R1_001.fastq.gz
-q2=/lustre/scratch116/vr/projects/Tes1_S2_L008_R2_001.fastq.gz
-q1=/lustre/scratch116/vr/projects/Tes1_S3_L008_R1_001.fastq.gz
-q2=/lustre/scratch116/vr/projects/Tes1_S3_L008_R2_001.fastq.gz
-q1=/lustre/scratch116/vr/projects/Tes1_S4_L008_R1_001.fastq.gz
-q2=/lustre/scratch116/vr/projects/Tes1_S4_L008_R2_001.fastq.gz
+q1=/lustre/scratch116/vr/projects/Tes1_S1_L008_R1_001.fastq.gz \
+q2=/lustre/scratch116/vr/projects/Tes1_S1_L008_R2_001.fastq.gz \
+q1=/lustre/scratch116/vr/projects/Tes1_S2_L008_R1_001.fastq.gz \
+q2=/lustre/scratch116/vr/projects/Tes1_S2_L008_R2_001.fastq.gz \
+q1=/lustre/scratch116/vr/projects/Tes1_S3_L008_R1_001.fastq.gz \
+q2=/lustre/scratch116/vr/projects/Tes1_S3_L008_R2_001.fastq.gz \
+q1=/lustre/scratch116/vr/projects/Tes1_S4_L008_R1_001.fastq.gz \
+q2=/lustre/scratch116/vr/projects/Tes1_S4_L008_R2_001.fastq.gz \
  
 		             The scaff10x pipeline will read the gzipped files, trim the barcodes and pipe to bwa for alignment	
                              The input.dat can be local or with full path
