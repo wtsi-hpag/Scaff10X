@@ -98,9 +98,9 @@ q2=/lustre/scratch116/vr/projects/Tes1_S4_L008_R2_001.fastq.gz \
 				(c). align 10x reads using lariat
 				$ longranger align --fastq="reads_10x" --sample=fTakRub1 --reference="longrang_refasm" --localcores=50 --id=10x-align 
 				Note: please provde full path
+				(d). run scaff10x 
+				$ scaff10X -bam /lustre/scratch117/possorted_bam.bam draft-asssembly.fasta output_scaffolds.fasta 
 	        draft-asssembly.fasta:   initial draft assembly to scaffold (full path or local)
-	        read-BC_1.fastq read-BC_2.fastq:  10Xg reads with barcode appended 
-						 to read names, prepared as shown above (full path or local)
 	        output_scaffolds.fasta:   name for the output scaffolded assembly (local)
 
 Some notes and suggestions:
