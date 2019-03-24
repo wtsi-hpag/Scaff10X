@@ -1128,7 +1128,9 @@ void
 WriteToStdOut(void *in)
 {
     u32 waitInQueue = 0;
-    if (Number_Waiting_For_StdOut < StdOut_Queue_Length)
+    u32 nWaiting;
+    __atomic_load(&Number_Waiting_For_StdOut, &nWaiting, 0);
+    if (nWaiting < StdOut_Queue_Length)
     {
 	__atomic_add_fetch(&Number_Waiting_For_StdOut, 1, 0);
 	waitInQueue = 1;
@@ -1145,8 +1147,8 @@ WriteToStdOut(void *in)
         u08 buff1[512];
         u08 buff2[512];
 
-        sprintf((char *)buff1, "%s", out1->line);
-        sprintf((char *)buff2, "%s", out2->line);
+        CopyNullTerminatedString(out1->line, buff1);
+	CopyNullTerminatedString(out2->line, buff2);
 
         AddLineBufferToQueue(Line_Buffer_Queue, out1);
         AddLineBufferToQueue(Line_Buffer_Queue, out2);
@@ -1206,6 +1208,7 @@ FinishRead_StdOut(void *in)
         }
         *readOut++ = *readIn++;
     }
+    *readOut = '\0';
 
     AddLineBufferToQueue(Line_Buffer_Queue, in1);
     
@@ -1234,6 +1237,7 @@ FinishRead_StdOut(void *in)
         }
         *readOut++ = *readIn++;
     }
+    *readOut = '\0';
 
     AddLineBufferToQueue(Line_Buffer_Queue, in2);
    
@@ -1520,29 +1524,54 @@ DecompressIntoGzipBuffer(struct file_stream *file)
     z_stream *zstream = file->gzip->zstream;
     u32 bufferFilled = 0;
     s32 inflateResult = 0;
+    u32 noFill = 0;
+    u32 eof = 0;
 
-    while (bufferFilled != Gzip_Buffer_Size && inflateResult != Z_STREAM_END)
+    while (bufferFilled != Gzip_Buffer_Size)
     {
-        if (zstream->avail_in == 0)
+        u32 oldIn = zstream->avail_in;
+	u32 oldOut = zstream->avail_out;
+	
+	if (zstream->avail_in == 0)
         {
             zstream->avail_in = (u32)fread(file->gzip->gzipInBuffer, 1, Gzip_Buffer_Size, file->file);
             zstream->next_in = file->gzip->gzipInBuffer;
         }
         if (zstream->avail_in == 0)
         {
-            break;
+            eof = 1;
+	    break;
         }
 
         zstream->avail_out = Gzip_Buffer_Size - bufferFilled;
         zstream->next_out = file->gzip->gzipOutBuffer + bufferFilled;
         inflateResult = inflate(zstream, Z_NO_FLUSH);
-        bufferFilled = Gzip_Buffer_Size - zstream->avail_out;
+        
+	bufferFilled = Gzip_Buffer_Size - zstream->avail_out;
+
+	if (inflateResult == Z_STREAM_ERROR)
+	{
+	    fprintf(stderr, "Z_STREAM_ERROR with file %s\n", file->name);
+	    exit(1);
+	}
+	else if (inflateResult == Z_STREAM_END)
+	{
+	    (void)inflateEnd(zstream);
+	    ResetMemoryArenaP(file->gzip->zarena);
+	    inflateInit2(zstream, 16+MAX_WBITS);
+	}
+
+	noFill = oldIn == zstream->avail_in && oldOut == zstream->avail_out;
+
+	if (noFill)
+	{
+	    break;
+	}
     }
 
-    if (inflateResult == Z_STREAM_END || (bufferFilled == 0 && zstream->avail_in == 0))
+    if (noFill || eof)
     {
-        file->gzip->gzipBufferPtrEnd = bufferFilled;
-        (void)inflateEnd(zstream);
+	file->gzip->gzipBufferPtrEnd = bufferFilled;
     }
 }
 
