@@ -1,4 +1,4 @@
-# Scaff10X v4.0
+# Scaff10X v4.1
 Pipeline for scaffolding and breaking a genome assembly using 10x genomics linked-reads.
 
 Pipeline steps:
