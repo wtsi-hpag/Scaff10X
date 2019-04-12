@@ -1,0 +1,14 @@
+gcc -O3 -Wall -Wextra -Wno-unknown-pragmas   -c -o pigz.o pigz.c
+gcc -O3 -Wall -Wextra -Wno-unknown-pragmas   -c -o yarn.o yarn.c
+gcc -O3 -Wall -Wextra -Wno-unknown-pragmas   -c -o try.o try.c
+gcc -O3 -Wall -Wextra -Wno-unknown-pragmas -c zopfli/src/zopfli/deflate.c
+gcc -O3 -Wall -Wextra -Wno-unknown-pragmas -c zopfli/src/zopfli/blocksplitter.c
+gcc -O3 -Wall -Wextra -Wno-unknown-pragmas -c zopfli/src/zopfli/tree.c
+gcc -O3 -Wall -Wextra -Wno-unknown-pragmas -c zopfli/src/zopfli/lz77.c
+gcc -O3 -Wall -Wextra -Wno-unknown-pragmas -c zopfli/src/zopfli/cache.c
+gcc -O3 -Wall -Wextra -Wno-unknown-pragmas -c zopfli/src/zopfli/hash.c
+gcc -O3 -Wall -Wextra -Wno-unknown-pragmas -c zopfli/src/zopfli/util.c
+gcc -O3 -Wall -Wextra -Wno-unknown-pragmas -c zopfli/src/zopfli/squeeze.c
+gcc -O3 -Wall -Wextra -Wno-unknown-pragmas -c zopfli/src/zopfli/katajainen.c
+gcc  -o pigz pigz.o yarn.o try.o deflate.o blocksplitter.o tree.o lz77.o cache.o hash.o util.o squeeze.o katajainen.o -lm -lpthread -lz
+ln -f pigz unpigz

@@ -113,7 +113,7 @@ fi
 
 echo; echo "Compiling scaff10X sources"
 
-srcs=( break10x scaff_barcode-cover scaff_barcode-sort scaff_break-clean scaff_contigs-sort scaff_mapping-clean scaff_outbreak scaff_PCRdup scaff_samout scaff_BC-reads-1 scaff_break-names scaff_fastq scaff_mapping-sort scaff_outbreak-seq scaff_reads scaff_samprocess scaff10x scaff_barcode-screen scaff_BC-reads-2 scaff_bwa scaff_length scaff_matrix scaff_output scaff_rename scaff_agp2agp scaff_RDplace scaff_superAGP )
+srcs=( break10x scaff_barcode-cover scaff_barcode-sort scaff_break-clean scaff_contigs-sort scaff_mapping-clean scaff_outbreak scaff_PCRdup scaff_samout scaff_BC-reads-1 scaff_break-names scaff_fastq scaff_mapping-sort scaff_outbreak-seq scaff_reads scaff_samprocess scaff10x scaff_barcode-screen scaff_BC-reads-2 scaff_bwa scaff_length scaff_matrix scaff_output scaff_rename scaff_agp2agp scaff_RDplace scaff_superAGP scaff_FilePreProcess)
 
 cd $projdir/src
 make &> $projdir/src/log/sources_compilation.log

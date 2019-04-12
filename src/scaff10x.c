@@ -79,6 +79,17 @@ typedef struct
        int fsindex;
 } SIO;
 
+void
+RunSystemCommand(char *cmd)
+{
+    int ret;
+    if ((ret = system(cmd)) != 0)
+    {
+        fprintf(stderr, "Error running command: %s\n", cmd);
+        exit(EXIT_FAILURE);
+    }
+}
+
 
 int main(int argc, char **argv)
 {
@@ -295,15 +306,13 @@ int main(int argc, char **argv)
 
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"mkdir %s",workdir);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-//    system (syscmd);
+
+    RunSystemCommand(syscmd);
 
     if(chdir(workdir) == -1)
     {
       printf("System command error: chdir\n");
+      exit(EXIT_FAILURE);
     }
      
     st = argv[0];
@@ -427,19 +436,15 @@ int main(int argc, char **argv)
 
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_fastq -name tarseq -len 10 %s tarseq.fastq tarseq.tag > try.out",bindir,file_tarseq);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
 
+    RunSystemCommand(syscmd);
+    
     if((run_align)&&(strcmp(toolname,"bwa") == 0))
     {
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/bwa index tarseq.fastq > try.out",bindir);
-      if(system(syscmd) == -1)
-      {
-        printf("System command error:\n");
-      }
+
+      RunSystemCommand(syscmd);
 
       if(file_tag == 0)
       {
@@ -453,10 +458,8 @@ int main(int argc, char **argv)
       {
         memset(syscmd,'\0',2000);
         sprintf(syscmd,"%s/bwa mem -t %d tarseq.fastq %s %s > align.sam",bindir,n_nodes,file_read1,file_read2);
-        if(system(syscmd) == -1)
-        {
-          printf("System command error:\n");
-        }
+    
+        RunSystemCommand(syscmd);
 
         memset(syscmd,'\0',2000);
         if(n_longread ==0)
@@ -478,20 +481,15 @@ int main(int argc, char **argv)
         exit(1);
       }  
       printf("%s\n",syscmd);
-      if(system(syscmd) == -1)
-      {
-        printf("System command error:\n");
-      }
+    
+      RunSystemCommand(syscmd);
     }
     else if((run_align)&&(strcmp(toolname,"smalt") == 0))
     {
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/smalt index -k 19 -s 11 hash_genome tarseq.fastq  > try.out",bindir);
-      if(system(syscmd) == -1)
-      {
-        printf("System command error:\n");
-      }
-
+    
+      RunSystemCommand(syscmd);
       if(file_tag == 0)
       {
         memset(syscmd,'\0',2000);
@@ -504,11 +502,8 @@ int main(int argc, char **argv)
       {
         memset(syscmd,'\0',2000);
         sprintf(syscmd,"%s/smalt map -i 1200 -j 20 -m 30 -r 888 -f samsoft -n %d -o align.sam -O hash_genome %s %s > try.out",bindir,n_nodes,file_read1,file_read2);
-        if(system(syscmd) == -1)
-        {
-          printf("System command error:\n");
-        }
-
+    
+        RunSystemCommand(syscmd);
         memset(syscmd,'\0',2000);
         if(n_longread ==0)
           sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
@@ -516,10 +511,8 @@ int main(int argc, char **argv)
           sprintf(syscmd,"cat align.sam | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat","($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
       }
       printf("%s\n",syscmd);
-      if(system(syscmd) == -1)
-      {
-        printf("System command error:\n");
-      }
+    
+      RunSystemCommand(syscmd);
     }
     else if(run_align == 0)
     {
@@ -531,10 +524,8 @@ int main(int argc, char **argv)
         else
           sprintf(syscmd,"cat %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",samname,"($2<100)&&($5>=0){print $1,$2,$3,$4,$5}");
         printf("%s\n",syscmd);
-        if(system(syscmd) == -1)
-        {
-          printf("System command error:\n");
-        }
+    
+        RunSystemCommand(syscmd);
       }
       else if(sam_flag == 2)
       {
@@ -545,28 +536,21 @@ int main(int argc, char **argv)
         else
           sprintf(syscmd,"%s/samtools view %s | awk '%s' | egrep -v '^@' > align0.dat",bindir,bamname,"($4!=0)&&($2<100)&&($5>=0){print $1,$12,$2,$3,$4,$5}");
         printf("%s\n",syscmd);
-        if(system(syscmd) == -1)
-        {
-          printf("System command error:\n");
-        }
-
+    
+        RunSystemCommand(syscmd);
         memset(syscmd,'\0',2000);
         sprintf(syscmd,"%s/scaff_bwa-barcode tarseq.tag align0.dat align.dat > try.out",bindir);
         printf("%s\n",syscmd);
-        if(system(syscmd) == -1)
-        {
-          printf("System command error:\n");
-        }
+    
+        RunSystemCommand(syscmd);
       }
       else if(sam_flag == 3)
       {
         memset(syscmd,'\0',2000);
         sprintf(syscmd,"cp %s align.dat",datname);
         printf("%s\n",syscmd);
-        if(system(syscmd) == -1)
-        {
-          printf("System command error:\n");
-        }
+    
+        RunSystemCommand(syscmd);
       }
       else
       {
@@ -579,150 +563,99 @@ int main(int argc, char **argv)
       memset(syscmd,'\0',2000);
       printf("%s/scaff_bwa -edge %d tarseq.tag align.dat align2.dat > try.out",bindir,len_edges);
       sprintf(syscmd,"%s/scaff_bwa -edge %d tarseq.tag align.dat align2.dat > try.out",bindir,len_edges);
-      if(system(syscmd) == -1)
-      {
-        printf("System command error:\n");
-      }
-
+    
+      RunSystemCommand(syscmd);
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_barcode-sort align2.dat align.sort > try.out",bindir);
-      if(system(syscmd) == -1)
-      {
-        printf("System command error:\n");
-      }
+    
+      RunSystemCommand(syscmd);
 
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_contigs-sort align.sort align.sort2 > try.out",bindir);
-      if(system(syscmd) == -1)
-      {
-        printf("System command error:\n");
-      }
-
-/*    else
-    {
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"cat %s/align.sam | awk '%s' | egrep -v '^@' > align.dat",tempa,"($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
-      if(system(syscmd) == -1)
-      {
-        printf("System command error:\n");
-      }
-    }       */
+    
+      RunSystemCommand(syscmd);
 
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_mapping-sort -block %d -reads %d -score %d align.sort2 barcodes.clust > try.out",bindir,len_block,num1_reads,mscore);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
 
+    RunSystemCommand(syscmd);
+    
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_mapping-clean barcodes.clust barcodes.clean > try.out",bindir);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
+    
+    RunSystemCommand(syscmd);
 
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_matrix -file 1 -matrix %d -link %d -uplink %d -longread %d barcodes.clean tarseq.tag contig.dat > scaff.out",bindir,len_matrx,num1_links,uplinks,n_longread);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-
+    
+    RunSystemCommand(syscmd);
+    
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_output -longread %d -gap %d tarseq.fastq contig.dat genome.fastq genome.agp > try.out",bindir,n_longread,gap_len);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-
+    RunSystemCommand(syscmd);
+    
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_RDplace align.sort2 genome.agp align.sort3 > try.out",bindir);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-
+    
+    RunSystemCommand(syscmd);
+    
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_mapping-sort -block %d -reads %d -score %d align.sort3 barcodes.clust2 > try.out",bindir,len_block,num2_reads,mscore);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-
+    
+    RunSystemCommand(syscmd);
+    
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_mapping-clean barcodes.clust2 barcodes.clean2 > try.out",bindir);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-
+    
+    RunSystemCommand(syscmd);
+    
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_fastq -name scaff10x -len 1 genome.fastq genome-new.fastq genome.tag > try.out",bindir);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-
+    
+    RunSystemCommand(syscmd);
+    
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_matrix -file 1 -matrix %d -link %d -uplink %d -longread %d barcodes.clean2 genome.tag contig.dat2 > scaff.out2",bindir,len_matrx,num2_links,uplinks,n_longread);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-
+    
+    RunSystemCommand(syscmd);
+    
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_output -longread %d -gap %d genome.fastq contig.dat2 genome2.fastq genome2.agp > try.out",bindir,n_longread,gap_len);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-
+    
+    RunSystemCommand(syscmd);
+    
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_rename genome2.fastq genome.fasta > try.out",bindir);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-
+    
+    RunSystemCommand(syscmd);
+    
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"mv genome.fasta %s",file_scaff);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-
+    
+    RunSystemCommand(syscmd);
+    
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_agp2agp genome.agp genome2.agp tarseq.tag genome-all.agp > try.out",bindir);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-
+    
+    RunSystemCommand(syscmd);
+    
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"mv genome-all.agp %s",file_sfagp);
-    if(system(syscmd) == -1)
-    {
-      printf("System command error:\n");
-    }
-
+    
+    RunSystemCommand(syscmd);
+    
     if(n_debug == 0)
     {
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"rm -rf * > /dev/null");
-      if(system(syscmd) == -1)
-      {
-        printf("System command error:\n");
-      }
-
+    
+      RunSystemCommand(syscmd);
       chdir(tmpdir);
 
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"rm -rf %s > /dev/null",workdir);
-      if(system(syscmd) == -1)
-      {
-        printf("System command error:\n");
-      }
+    
+      RunSystemCommand(syscmd);
     }
     return EXIT_SUCCESS;
 
