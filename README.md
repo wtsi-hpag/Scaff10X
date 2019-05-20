@@ -1,4 +1,4 @@
-# Scaff10X v4.1
+# Scaff10X v4.2
 Pipeline for scaffolding and breaking a genome assembly using 10x genomics linked-reads.
 
 Pipeline steps:
@@ -49,7 +49,7 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
            $ /full/path/to/Scaff10X/src/scaff10X -nodes <nodes> -align <aligner> -score <score> \
 	   	 -matrix <matrix_size> -read-s1 <min_reads_s1> -read-s2 <min_reads_s2> -longread <aggressive> -gap <gap_size> \
 		 -edge <edge_len> -link-s1 <n_links_s1> -link-s2 <n_links_s2> -block <block>  \
-		 [ -data input.dat ] [ -sam input.sam ] [ -bam input.bam ] \
+		 [ -data input.dat ] [ -sam input.sam ] [ -bam input.bam ] [ -plot barcode-length.png ] \
 		 draft-asssembly.fasta output_scaffolds.fasta
            
 
@@ -114,8 +114,12 @@ Some notes and suggestions:
 	   where scaff10x scaffolds (output_scaffolds.fasta) are scaffolded again using scaff10x.
 	e. Alignments with mapping score < score are filtered out to reduce linking errors;
 	f. By using the option of "-longread 1", the pipeline performs an aggressive 
-	    mapping score filtering on small PacBio/ONT contigs.  
-
+	    mapping score filtering on small PacBio/ONT contigs. 
+        g. The barcode length image file shows length distributions of your working sample
+           It also compares with Human, Hummingbird, fish fAnaTes1 and fish fSimDai1
+           Human, Hummingbird and fish fAnaTes1 are in good quality, while fSimDai1 is a failed sample; 
+        h. File cover.dat can be found in the tmp directory after you used "-plot " option 
+           This file provides coverage information both for barcode and sequence coverage 
 
 #### Remember: you only need to run scaff10x once (previously we suggested two iterations)
 
