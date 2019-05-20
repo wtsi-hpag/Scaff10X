@@ -126,7 +126,7 @@ int main(int argc, char **argv)
          printf("Version: 4.0\n");
          printf("\n");
          
-         printf("Usage: %s -nodes 30 -longread 1 -gap 100 -matrix 2000 -reads 10 -score 20 -edge 50000 -link 8 -block 50000  <input_assembly_fasta/q_file> <Input_read_1>> <Input_read_2> <Output_scaffold_file>\n",argv[0]);
+         printf("Usage: %s -nodes 30 -longread 1 -gap 100 -matrix 2000 -reads 10 -score 20 -edge 50000 -link 8 -block 50000 -plot barcode_lengtg.png <input_assembly_fasta/q_file> <Input_read_1>> <Input_read_2> <Output_scaffold_file>\n",argv[0]);
          printf("       nodes    (30)    - number of CPUs requested\n");
          printf("       matrix   (2000)  - relation matrix size\n");
          printf("       reads    (10)    - step 1 and 2: minimum number of reads per barcode\n");
@@ -145,6 +145,7 @@ int main(int argc, char **argv)
          printf("       gap      (100)   - gap size in building scaffold\n");
          printf("       sam      ()      - previously aligned sam file by bwa\n");
          printf("       bam      ()      - previously aligned bam file by longrange\n");
+         printf("       plot     (barcode_lengtg.png) - output image file on barcode length distributions\n");
          exit(1);
     }
 
@@ -184,7 +185,7 @@ int main(int argc, char **argv)
        }
        else if(!strcmp(argv[i],"-data"))
        {
-         run_align = 0;
+         run_align = 1;
          file_tag = 2;
          sam_flag = 3;
          sscanf(argv[++i],"%s",datname);
@@ -224,7 +225,7 @@ int main(int argc, char **argv)
        }
        else if(!strcmp(argv[i],"-help"))
        {
-         printf("Usage: %s -nodes 30 -longread 1 -gap 100 -matrix 2000 -reads 10 -score 20 -edge 50000 -link 8 -block 50000  <input_assembly_fasta/q_file> <Input_read_1>> <Input_read_2> <Output_scaffold_file>\n",argv[0]);
+         printf("Usage: %s -nodes 30 -longread 1 -gap 100 -matrix 2000 -reads 10 -score 20 -edge 50000 -link 8 -block 50000 -plot barcode_lengtg.png <input_assembly_fasta/q_file> <Input_read_1>> <Input_read_2> <Output_scaffold_file>\n",argv[0]);
          printf("       nodes    (30)    - number of CPUs requested\n");
          printf("       matrix   (2000)  - relation matrix size\n");
          printf("       reads    (10)    - step 1 and 2: minimum number of reads per barcode\n");
@@ -243,6 +244,7 @@ int main(int argc, char **argv)
          printf("       gap      (100)   - gap size in building scaffold\n");
          printf("       sam      ()      - previously aligned sam file by bwa\n");
          printf("       bam      ()      - previously aligned bam file by longrange\n");
+         printf("       plot     (barcode_lengtg.png) - output image file on barcode length distributions\n");
          exit(1);
        }
        else if(!strcmp(argv[i],"-block"))
