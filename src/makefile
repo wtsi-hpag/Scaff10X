@@ -1,5 +1,5 @@
 # Makefile for scaff10x 
-CC= /software/gcc-4.9.2/bin/gcc
+CC= gcc
 CFLAGS= -O2 -std=c11 -march=x86-64 -mtune=generic
 LFLAGS= -lm -pthread -lz
 
