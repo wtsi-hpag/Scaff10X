@@ -70,6 +70,7 @@ static int uplinks = 50;
 static int mscore = 20;
 static int n_longread = 1;
 static int run_align = 1;
+static int plot_10x = 0;
 static int min_len = 3000;
 static int sam_flag = 0;
 
@@ -111,7 +112,7 @@ int main(int argc, char **argv)
     void File_Output(int aaa);
     void Memory_Allocate(int arr);
     char tempa[2000],tempc[2000],syscmd[2000],workdir[2000];
-    char file_tarseq[2000],file_scaff[2000],file_sfagp[2000],file_datas[2000];
+    char file_tarseq[2000],file_scaff[2000],file_sfagp[2000],file_datas[2000],file_plot10x[2000],lenplot10x[200];
     char file_read1[2000],file_read2[2000],samname[500],bamname[500],toolname[500],datname[500];
     int systemRet = system (syscmd);
     int systemChd = chdir(tmpdir);
@@ -147,6 +148,7 @@ int main(int argc, char **argv)
          exit(1);
     }
 
+    memset(lenplot10x,'\0',200);
     m_score = 50;
     n_nodes = 20;
     n_debug = 1;
@@ -182,7 +184,7 @@ int main(int argc, char **argv)
        }
        else if(!strcmp(argv[i],"-data"))
        {
-         run_align = 1;
+         run_align = 0;
          file_tag = 2;
          sam_flag = 3;
          sscanf(argv[++i],"%s",datname);
@@ -202,6 +204,12 @@ int main(int argc, char **argv)
        else if(!strcmp(argv[i],"-longread"))
        {
          sscanf(argv[++i],"%d",&n_longread);
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-plot"))
+       {
+         plot_10x = 1;
+         sscanf(argv[++i],"%s",lenplot10x);
          args=args+2;
        }
        else if(!strcmp(argv[i],"-matrix"))
@@ -328,6 +336,8 @@ int main(int argc, char **argv)
     memset(file_scaff,'\0',2000);
     memset(file_sfagp,'\0',2000);
     memset(file_datas,'\0',2000);
+    memset(file_plot10x,'\0',2000);
+
     sprintf(file_tarseq,"%s/%s",tempa,argv[args]);
     if((run_align == 0)||(file_tag == 2))
     {
@@ -643,7 +653,98 @@ int main(int argc, char **argv)
     sprintf(syscmd,"mv genome-all.agp %s",file_sfagp);
     
     RunSystemCommand(syscmd);
-    
+
+    if(plot_10x == 1)
+    {
+      sprintf(file_plot10x,"%s/%s",tempa,lenplot10x);
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_bwa -edge 300000000 tarseq.tag align.dat align.size > try.out",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_barcode-sort align.size align.size2 > try.out",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align.size ",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_contigs-sort align.size2 align.size3 > try.out",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align.size2 ",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_ctgloci-sort align.size3 align.size4 > try.out",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align.size3 ",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_PCRdup align.size4 align.size5 > try.out",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align.size4 ",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_barcode-length -reads 5 align.size5 align.length-5 > try.out",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"rm -rf align.size5 ",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"cat align.length-5 | awk '{print $1,$3}' | sort -n -k 2 > sample-bcl-5.dat",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_lengthdis sample-bcl-5.dat sample-10x.freq > try.out",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"cp %s/human-bcl-5.freq human-bcl-5.freq",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"cp %s/hummingbird-bcl-5.freq hummingbird-bcl-5.freq",bindir);
+      RunSystemCommand(syscmd);
+      
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"cp %s/fAnaTes1-bcl-5.freq fAnaTes1-bcl-5.freq",bindir);
+      RunSystemCommand(syscmd);
+      
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"cp %s/fSimDai1-bcl-5.freq fSimDai1-bcl-5.freq",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"sh %s/plot-10x-length.sh",bindir);
+      RunSystemCommand(syscmd);
+      
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"cp plot10x.png %s",lenplot10x);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"mv %s %s",lenplot10x,file_plot10x);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"sort -k 2,2 -k 5,5n align.length-5 > align.length-sort",bindir);
+      RunSystemCommand(syscmd);
+
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_barcode-cover align.length-sort break.dat cover.dat > break.out",bindir);
+      RunSystemCommand(syscmd);
+    }    
     if(n_debug == 0)
     {
       memset(syscmd,'\0',2000);
