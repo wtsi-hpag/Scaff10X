@@ -838,7 +838,7 @@ int main(int argc, char **argv)
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scaff_barcode-cover -score %d -cover %d -ratio %d align.length-sort break.dat > break.out",bindir,mscore,min_cover,min_ratio);
+    sprintf(syscmd,"%s/scaff_barcode-cover -score %d -cover %d -ratio %d align.length-sort break.dat cover.dat > break.out",bindir,mscore,min_cover,min_ratio);
     if(system(syscmd) == -1)
     {
 //        printf("System command error:\n);
