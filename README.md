@@ -67,6 +67,7 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 	     		   0 - no aggressive for short read assembly  [ default = 1 ]
              block:        length to determine for nearest neighbours [ default = 50000 ]
              gap:          gap size in building scaffold [ default = 100 ]
+             plot:         output image file with barcode length distributions and coverage stats 
 	     
 	       Files
                 ==========
@@ -110,16 +111,14 @@ Some notes and suggestions:
 	   and you may increase this value to say 5000 or 10000 to improve the length of scaffolds; 
 	c. The default numbers of -reads and -link are based on 30X read depth. 
 	   These values should be increased if the read deapth is higher
-	d. To get the best results we suggest an iterative approach, 
-	   where scaff10x scaffolds (output_scaffolds.fasta) are scaffolded again using scaff10x.
-	e. Alignments with mapping score < score are filtered out to reduce linking errors;
-	f. By using the option of "-longread 1", the pipeline performs an aggressive 
-	    mapping score filtering on small PacBio/ONT contigs. 
-        g. The barcode length image file shows length distributions of your working sample
-           It also compares with Human, Hummingbird, fish fAnaTes1 and fish fSimDai1
-           Human, Hummingbird and fish fAnaTes1 are in good quality, while fSimDai1 is a failed sample; 
-        h. File cover.dat can be found in the tmp directory after you used "-plot " option 
-           This file provides coverage information both for barcode and sequence coverage 
+	d. Alignments with mapping score < score are filtered out to reduce linking errors;
+	e. By using the option of "-longread 1", the pipeline performs an aggressive 
+	   mapping score filtering on small PacBio/ONT contigs.
+        f. File cover.dat can be produced when you use "-plot " option
+           This file provides coverage information both for barcode and sequence coverage
+        g. The barcode length image file presents length distributions of your working sample
+           It also compares with Human, Hummingbird, fish fAnaTes1 and fish fSimDai1 
+           Human, Hummingbird and fish fAnaTes1 are in good quality, while fSimDai1 is a failed sample. 
 
 #### Remember: you only need to run scaff10x once (previously we suggested two iterations)
 
