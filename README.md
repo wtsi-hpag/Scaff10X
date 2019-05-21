@@ -114,11 +114,11 @@ Some notes and suggestions:
 	d. Alignments with mapping score < score are filtered out to reduce linking errors;
 	e. By using the option of "-longread 1", the pipeline performs an aggressive 
 	   mapping score filtering on small PacBio/ONT contigs.
-        f. File cover.dat can be produced when you use "-plot " option
-           This file provides coverage information both for barcode and sequence coverage
-        g. The barcode length image file presents length distributions of your working sample
-           It also compares with Human, Hummingbird, fish fAnaTes1 and fish fSimDai1 
-           Human, Hummingbird and fish fAnaTes1 are in good quality, while fSimDai1 is a failed sample. 
+	f. File cover.dat can be produced when you use "-plot " option 
+	   This file provides coverage information both for barcode and sequence coverage 
+	g. File cover.dat can be produced when you use "-plot " option 
+	   It also compares with Human, Hummingbird, fish fAnaTes1 and fish fSimDai1 
+	   Human, Hummingbird and fish fAnaTes1 are in good quality, while fSimDai1 is a failed sample. 
 
 #### Remember: you only need to run scaff10x once (previously we suggested two iterations)
 
