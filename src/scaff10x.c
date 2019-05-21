@@ -112,8 +112,8 @@ int main(int argc, char **argv)
     void File_Output(int aaa);
     void Memory_Allocate(int arr);
     char tempa[2000],tempc[2000],syscmd[2000],workdir[2000];
-    char file_tarseq[2000],file_scaff[2000],file_sfagp[2000],file_datas[2000],file_plot10x[2000],lenplot10x[200];
-    char file_read1[2000],file_read2[2000],samname[500],bamname[500],toolname[500],datname[500];
+    char file_tarseq[2000],file_scaff[2000],file_sfagp[2000],file_datas[2000],file_plot10x[2000],file_cover[2000];
+    char file_read1[2000],file_read2[2000],samname[500],bamname[500],toolname[500],datname[500],lenplot10x[200];
     int systemRet = system (syscmd);
     int systemChd = chdir(tmpdir);
     pid_t pid;
@@ -185,7 +185,8 @@ int main(int argc, char **argv)
        }
        else if(!strcmp(argv[i],"-data"))
        {
-         run_align = 1;
+         run_align = 0;
+//         run_align = 1;
          file_tag = 2;
          sam_flag = 3;
          sscanf(argv[++i],"%s",datname);
@@ -338,6 +339,7 @@ int main(int argc, char **argv)
     memset(file_scaff,'\0',2000);
     memset(file_sfagp,'\0',2000);
     memset(file_datas,'\0',2000);
+    memset(file_cover,'\0',2000);
     memset(file_plot10x,'\0',2000);
 
     sprintf(file_tarseq,"%s/%s",tempa,argv[args]);
@@ -345,6 +347,7 @@ int main(int argc, char **argv)
     {
       sprintf(file_scaff,"%s/%s",tempa,argv[args+1]);
       sprintf(file_sfagp,"%s/%s.agp",tempa,argv[args+1]);
+      sprintf(file_cover,"%s/%s.cov",tempa,argv[args+1]);
     }
     else
     {
@@ -352,6 +355,7 @@ int main(int argc, char **argv)
       sprintf(file_read2,"%s/%s",tempa,argv[args+2]);
       sprintf(file_scaff,"%s/%s",tempa,argv[args+3]);
       sprintf(file_sfagp,"%s/%s.agp",tempa,argv[args+3]);
+      sprintf(file_cover,"%s/%s.cov",tempa,argv[args+1]);
     }
 
     if(n_longread ==0)
@@ -746,6 +750,11 @@ int main(int argc, char **argv)
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_barcode-cover align.length-sort break.dat cover.dat > break.out",bindir);
       RunSystemCommand(syscmd);
+    
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"cp cover.dat %s",file_cover);
+      RunSystemCommand(syscmd);
+    
     }    
     if(n_debug == 0)
     {
