@@ -50,7 +50,7 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 	   	 -matrix <matrix_size> -read-s1 <min_reads_s1> -read-s2 <min_reads_s2> -longread <aggressive> -gap <gap_size> \
 		 -edge <edge_len> -link-s1 <n_links_s1> -link-s2 <n_links_s2> -block <block>  \
 		 [ -data input.dat ] [ -sam input.sam ] [ -bam input.bam ] [ -plot barcode-length.png ] \
-		 draft-asssembly.fasta output_scaffolds.fasta
+		 draft-assembly.fasta output_scaffolds.fasta
            
 
 	       Parameters:
@@ -87,21 +87,21 @@ q2=/lustre/scratch116/vr/projects/Tes1_S4_L008_R2_001.fastq.gz \
 
                 ==========
 	        input.sam:   input a sam file if it already exists, 
-				and skip the mapping (Optional, please provde full path)
+				and skip the mapping (Optional, please provide full path)
 
                 ==========
-	        input.bam:   input a bam file which had been prodcued by using lariat in longranger, 
-				and skip the mapping (Optional, please provde full path)
+	        input.bam:   input a bam file which had been produced by using lariat in longranger, 
+				and skip the mapping (Optional, please provide full path)
 				(a). rename the assembly file (Optional):
 				$ /full/path/to/Scaff10X/src/scaff-bin/scaff_rename your_assembly.fa longrang_refasm.fa
 				(b). generate reference assembly file using longranger
 				$ longranger mkref longrang_refasm.fa 
 				(c). align 10x reads using lariat
 				$ longranger align --fastq="reads_10x" --sample=fTakRub1 --reference="longrang_refasm" --localcores=50 --id=10x-align 
-				Note: please provde full path
+				Note: please provide full path
 				(d). run scaff10x 
-				$ scaff10X -bam /lustre/scratch117/possorted_bam.bam draft-asssembly.fasta output_scaffolds.fasta 
-	        draft-asssembly.fasta:   initial draft assembly to scaffold (full path or local)
+				$ scaff10X -bam /lustre/scratch117/possorted_bam.bam draft-assembly.fasta output_scaffolds.fasta 
+	        draft-assembly.fasta:   initial draft assembly to scaffold (full path or local)
 	        output_scaffolds.fasta:   name for the output scaffolded assembly (local)
 
 Some notes and suggestions:
@@ -110,15 +110,15 @@ Some notes and suggestions:
 	b. The block value is very important. The default value of 2500 is very conservative
 	   and you may increase this value to say 5000 or 10000 to improve the length of scaffolds; 
 	c. The default numbers of -reads and -link are based on 30X read depth. 
-	   These values should be increased if the read deapth is higher
+	   These values should be increased if the read depth is higher
 	d. Alignments with mapping score < score are filtered out to reduce linking errors;
 	e. By using the option of "-longread 1", the pipeline performs an aggressive 
 	   mapping score filtering on small PacBio/ONT contigs.
-	f. File cover.dat can be produced when you use "-plot " option 
-	   This file provides coverage information both for barcode and sequence coverage 
-	g. File cover.dat can be produced when you use "-plot " option 
+	f. An image png file is generated showing distributions of barcode length with "-plot " option 
 	   It also compares with Human, Hummingbird, fish fAnaTes1 and fish fSimDai1 
 	   Human, Hummingbird and fish fAnaTes1 are in good quality, while fSimDai1 is a failed sample. 
+	g. File cover.dat can be produced when you use "-plot " option 
+	   This file provides coverage information both for barcode and sequence coverage 
 
 #### Remember: you only need to run scaff10x once (previously we suggested two iterations)
 
@@ -181,7 +181,7 @@ Example:
            $ /full/path/to/Scaff10X/src/scaff10X -nodes <nodes> -align <aligner> -score <score> \
 	   	 -matrix <matrix_size> -read-s1 <min_reads_s1> -read-s2 <min_reads_s2> -longread <aggressive> -gap <gap_size> \
 		 -edge <edge_len> -link-s1 <n_links_s1> -link-s2 <n_links_s2> -block <block>  \
-		 draft-asssembly.fasta genome-BC_1.fastq.gz genome-BC_2.fastq.gz output_scaffolds.fasta \
+		 draft-assembly.fasta genome-BC_1.fastq.gz genome-BC_2.fastq.gz output_scaffolds.fasta \
 	    
 ##### Run break10x in another way   
 
