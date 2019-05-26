@@ -45,7 +45,7 @@
 #define MAX_N_ROW 50000 
 #define Max_N_NameBase 20
 static char **S_Name;
-static int *hit_locus1,*hit_locus2,*hit_length,*hit_mscore,*hit_reads;
+static int *hit_locus1,*hit_locus2,*hit_length,*hit_barlen,*hit_mscore,*hit_reads;
 
 /* SSAS default parameters   */
 static int IMOD=0;
@@ -60,11 +60,6 @@ static int read_len = 150;
 static int num_contig = 0;
 static int min_ratio = 15;
 static int min_cover = 50;
-typedef struct
-{
-       int foffset;
-       int fsindex;
-} SIO;
 
 fasta *expt;
 
@@ -222,6 +217,11 @@ int main(int argc, char **argv)
       printf("fmate: calloc - hit_locus2\n");
       exit(1);
     }
+    if((hit_barlen = (int *)calloc(nseq,sizeof(int))) == NULL)
+    {
+      printf("fmate: calloc - hit_barlen\n");
+      exit(1);
+    }
     if((hit_mscore = (int *)calloc(nseq,sizeof(int))) == NULL)
     {
       printf("fmate: calloc - hit_locus2\n");
@@ -245,7 +245,7 @@ int main(int argc, char **argv)
 /*  read the alignment files         */
     i=0;
     num_contig = 0;
-    while(fscanf(namef,"%s %s %s %d %d %d %d %s %d",cc,S_Name[i],cc,&hit_length[i],&hit_locus1[i],&hit_locus2[i],&hit_reads[i],cc,&hit_mscore[i])!=EOF)
+    while(fscanf(namef,"%s %s %d %d %d %d %d %s %d",cc,S_Name[i],&hit_barlen[i],&hit_length[i],&hit_locus1[i],&hit_locus2[i],&hit_reads[i],cc,&hit_mscore[i])!=EOF)
     {
         ed = strrchr(S_Name[i],'_');
         idt = atoi(ed+1);
@@ -272,12 +272,16 @@ int main(int argc, char **argv)
 void Barcode_Process(char **argv,int args,int nSeq)
 /* =============================== */
 {
-     int i,j,k,m,n,g_size;
+     int i,j,k,m,n,g_size,max_barlen;
      int num_hits,*hit_bccover,*hit_rdcover,*hit_ctglens,*cov_genome;
      FILE *namef;
-     long num_cover,ave_cover,t_SQbases,t_BCbases,t_RDbases;
+     float ave_barlen,R50,R60,R70,R80,R90;
+     long num_cover,ave_cover,t_SQbases,t_BCbases,t_RDbases,totalBarlen,totalHalf;
      void ArraySort_String(int n,char **Pair_Name,int *brr);
      void ArraySort_Int2(int n, int *arr, int *brr);
+     void ArraySort2_Int2(int n, int *arr, int *brr);
+     int N50,N60,N70,N80,N90,M50,M60,M70,M80,M90;
+
 
      g_size = max_len+1000;;      
      if((cov_genome= (int *)calloc(g_size,sizeof(int))) == NULL)
@@ -430,7 +434,7 @@ void Barcode_Process(char **argv,int args,int nSeq)
                  idt = atoi(ed+1); 
                  printf("Break: %d %d %d %d %ld %d\n",idt,mini_los,ctg_len,mini_hit,ave_cover,set_cover);
                  fprintf(namef,"Break: %d %d %d %d %ld\n",idt,mini_los,ctg_len,mini_hit,ave_cover);
-               } 
+               }
              }
              ii = jj-1;
           }
@@ -446,6 +450,77 @@ void Barcode_Process(char **argv,int args,int nSeq)
        printf("ERROR main:: reads group file \n");
        exit(1);
      }
+
+     totalBarlen = 0;
+     for(i=0;i<nSeq;i++)
+     {
+        hit_reads[i] = i;
+        totalBarlen = totalBarlen + hit_barlen[i];
+     }
+
+     ArraySort2_Int2(nSeq,hit_barlen,hit_reads);
+     max_barlen = hit_barlen[0];
+     ave_barlen = totalBarlen/nSeq;
+     totalHalf = 0;
+     N50 = 0;
+     N60 = 0;
+     N70 = 0;
+     N80 = 0;
+     N90 = 0;
+     fprintf(namef,"Barcode length: n = %d, ave = %f, largest = %d\n",nSeq,ave_barlen,max_barlen);
+
+     for(i=0;i<nSeq;i++)
+     {
+        totalHalf = totalHalf+hit_barlen[i];
+        if((totalHalf >= 0.5*totalBarlen)&&(N50==0))
+        {
+          M50 = 0.5*totalBarlen/(i+1);
+          R50 = M50;
+          R50 = R50/hit_barlen[i];
+          fprintf(namef,"        N50 = %d, n = %d\n",hit_barlen[i],i+1);
+          N50 = 1;
+        }
+        if((totalHalf >= 0.6*totalBarlen)&&(N60==0))
+        {
+          M60 = 0.6*totalBarlen/(i+1);
+          R60 = M60;
+          R60 = hit_barlen[i]/R60;
+          R60 = R60*R50;
+          fprintf(namef,"        N60 = %d, n = %d\n",hit_barlen[i],i+1);
+          N60 = 1;
+        }
+        if((totalHalf >= 0.7*totalBarlen)&&(N70==0))
+        {
+          M70 = 0.7*totalBarlen/(i+1);
+          R70 = M70;
+          R70 = hit_barlen[i]/R70;
+          R70 = R70*R50;
+          fprintf(namef,"        N70 = %d, n = %d\n",hit_barlen[i],i+1);
+          N70 = 1;
+        }
+        if((totalHalf >= 0.8*totalBarlen)&&(N80==0))
+        {
+          M80 = 0.8*totalBarlen/(i+1);
+          R80 = M80;
+          R80 = hit_barlen[i]/R80;
+          R80 = R80*R50;
+          fprintf(namef,"        N80 = %d, n = %d\n",hit_barlen[i],i+1);
+          N80 = 1;
+        }
+        if((totalHalf >= 0.9*totalBarlen)&&(N90==0))
+        {
+          M90 = 0.9*totalBarlen/(i+1);
+          R90 = M90;
+          R90 = hit_barlen[i]/R90;
+          R90 = R90*R50;
+          fprintf(namef,"        N90 = %d, n = %d\n",hit_barlen[i],i+1);
+          N90 = 1;
+          i = nSeq;
+        }
+     }
+
+     fprintf(namef,"        N100 = %d, n = %d\n",hit_barlen[nSeq-1],nSeq);
+
      fprintf(namef,"Barcode cover: %d\n",t_BCbases/t_SQbases);
      fprintf(namef,"Read cover: %d\n",t_RDbases/t_SQbases);
 
