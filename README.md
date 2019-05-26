@@ -118,7 +118,7 @@ Some notes and suggestions:
 	   It also compares with Human, Hummingbird, fish fAnaTes1 and fish fSimDai1 
 	   Human, Hummingbird and fish fAnaTes1 are in good quality, while fSimDai1 is a failed sample. 
 	g. File cover.dat can be produced when you use "-plot " option 
-	   This file provides coverage information both for barcode and sequence coverage 
+	   This file provides barcode information (length and coverage) as well as sequence coverage 
 
 #### Remember: you only need to run scaff10x once (previously we suggested two iterations)
 
