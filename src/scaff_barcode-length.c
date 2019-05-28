@@ -57,7 +57,7 @@ static int tiles_flag=0;
 static int block_set=2500;
 static int edge_flag=0;
 static int nContig=0;
-static int max_len = 20000;
+static int max_len = 100000;
 typedef struct
 {
        int foffset;
