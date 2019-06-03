@@ -123,7 +123,7 @@ int main(int argc, char **argv)
     if(argc < 2)
     {
          printf("Program: scaff10x - Genome Scaffolding using 10X Chromium Data\n");
-         printf("Version: 4.0\n");
+         printf("Version: 4.2\n");
          printf("\n");
          
          printf("Usage: %s -nodes 30 -longread 1 -gap 100 -matrix 2000 -reads 10 -score 20 -edge 50000 -link 8 -block 50000 -plot barcode_lengtg.png <input_assembly_fasta/q_file> <Input_read_1>> <Input_read_2> <Output_scaffold_file>\n",argv[0]);
@@ -185,7 +185,8 @@ int main(int argc, char **argv)
        }
        else if(!strcmp(argv[i],"-data"))
        {
-         run_align = 1;
+         run_align = 0;
+//         run_align = 1;
          file_tag = 2;
          sam_flag = 3;
          sscanf(argv[++i],"%s",datname);
@@ -354,7 +355,7 @@ int main(int argc, char **argv)
       sprintf(file_read2,"%s/%s",tempa,argv[args+2]);
       sprintf(file_scaff,"%s/%s",tempa,argv[args+3]);
       sprintf(file_sfagp,"%s/%s.agp",tempa,argv[args+3]);
-      sprintf(file_cover,"%s/%s.cov",tempa,argv[args+1]);
+      sprintf(file_cover,"%s/%s.cov",tempa,argv[args+3]);
     }
 
     if(n_longread ==0)
@@ -702,10 +703,11 @@ int main(int argc, char **argv)
       sprintf(syscmd,"%s/scaff_barcode-length -reads 5 align.size5 align.length-5 > try.out",bindir);
       RunSystemCommand(syscmd);
 
+/*
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"rm -rf align.size5 ",bindir);
       RunSystemCommand(syscmd);
-
+                                        */
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"cat align.length-5 | awk '{print $1,$3}' | sort -n -k 2 > sample-bcl-5.dat",bindir);
       RunSystemCommand(syscmd);
