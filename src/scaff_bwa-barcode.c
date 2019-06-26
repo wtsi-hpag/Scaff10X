@@ -266,7 +266,7 @@ void Mapping_Process(char **argv,int args,int nSeq,int nRead)
      int stopflag,*readIndex;
      int offset;
      void ArraySort_Mix(int n, long *arr, int *brr);
-     char **DBname,RC[2];
+     char **DBname,RC[2],**ctgname_aln,**ctgname_asm;
      void ArraySort_Int2(int n, int *arr, int *brr);
      char **cmatrix(long nrl,long nrh,long ncl,long nch);
      void ArraySort_String(int n,char **Pair_Name,int *brr);
@@ -315,11 +315,14 @@ void Mapping_Process(char **argv,int args,int nSeq,int nRead)
      n_contigs = k;
      printf("Numbers of contigs: %d %d\n",n_contigs,nSeq);
 
+/*
      if(n_contigs != nSeq)
      {
         printf("Numbers of contigs are difference, please check reference assembly! %d %d\n",n_contigs,nSeq);
         exit(1);
-     }
+     }   */
+
+
      ctg_head[0] = 0;
      for(i=1;i<n_contigs;i++)
      {
