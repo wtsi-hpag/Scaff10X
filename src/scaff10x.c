@@ -185,8 +185,7 @@ int main(int argc, char **argv)
        }
        else if(!strcmp(argv[i],"-data"))
        {
-         run_align = 0;
-//         run_align = 1;
+         run_align = 1;
          file_tag = 2;
          sam_flag = 3;
          sscanf(argv[++i],"%s",datname);
