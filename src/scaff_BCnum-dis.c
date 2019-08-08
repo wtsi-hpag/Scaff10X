@@ -8,7 +8,7 @@
 
 static int *nn;
 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
   int i=0,j=0,k,len=0,num_steps,nSeq,num_base;
   int *s_len,BAR = 0,nstep = 0,stopflag,base;
