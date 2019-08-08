@@ -43,7 +43,7 @@
 #define PADCHAR '-'
 #define MAX_N_BRG 50000 
 #define MAX_N_ROW 50000 
-#define Max_N_NameBase 60
+#define Max_N_NameBase 20
 #define Max_N_Pair 100
 static char **S_Name,**R_Name,**R_Name2,**T_Name,**cellname;
 static int *hit_locus,*hit_index,*hit_score,*hit_length,*ctg_index;
