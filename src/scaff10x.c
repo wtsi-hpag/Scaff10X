@@ -827,7 +827,7 @@ int main(int argc, char **argv)
       RunSystemCommand(syscmd);
 
       memset(syscmd,'\0',2000);
-      sprintf(syscmd,"sh %s/plot-10x-length.sh",bindir);
+      sprintf(syscmd,"bash %s/plot-10x-length.sh",bindir);
       RunSystemCommand(syscmd);
       
       memset(syscmd,'\0',2000);
