@@ -144,17 +144,17 @@ int main(int argc, char **argv)
        }
     }
 
-    if((fp=fopen(argv[args],"rb"))==NULL) error("Cannot open file\n");
+    if((fp=fopen(argv[args],"rb"))==NULL) printf("Cannot open file\n");
     fseek(fp, 0, SEEK_END);
     Size_q_pdata = ftell(fp) + 1;
     fclose(fp);
     if((pdata=(char*)calloc(Size_q_pdata,sizeof(char)))==NULL)
-      error("calloc pdata\n");
+      printf("calloc pdata\n");
     num_seqque = extractFastq(argv[args],pdata,Size_q_pdata);
     if((segg=(fasta*)calloc((num_seqque+1),sizeof(fasta)))==NULL)
-      error("calloc segg\n");
+      printf("calloc segg\n");
     if((seq=decodeFastq(argv[args],&num_seqque,&totalBases,pdata,Size_q_pdata,segg))==NULL)
-      error("no query data found.\n");
+      printf("no query data found.\n");
     nSeq = num_seqque;
     printf("Number of shotgun reads  %d \n",nSeq);
 
