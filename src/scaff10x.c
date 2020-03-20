@@ -458,7 +458,12 @@ int main(int argc, char **argv)
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scaff_fastq -name tarseq -len 10 %s tarseq.fastq tarseq.tag > try.out",bindir,file_tarseq);
+    sprintf(syscmd,"%s/scaff_screeN %s cleaN.fasta > try.out",bindir,file_tarseq);
+
+    RunSystemCommand(syscmd);
+    
+    memset(syscmd,'\0',2000);
+    sprintf(syscmd,"%s/scaff_fastq -name tarseq -len 10 cleaN.fasta tarseq.fastq tarseq.tag > try.out",bindir);
 
     RunSystemCommand(syscmd);
     
