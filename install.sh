@@ -80,13 +80,13 @@ if [[ ! -s $bindir/pigz ]]; then
 
     if [[ ! -d $projdir/src/pigz ]]; then
 	cd $projdir/src/
-        wget -r -np -nd https://zlib.net/pigz/pigz-2.4.tar.gz &> $projdir/src/log/pigz_wget.log
-        tar -xvzf pigz-2.4.tar.gz &> $projdir/src/log/pigz_untar.log
-        rm -f pigz-2.4.tar.gz
+        wget -r -np -nd https://zlib.net/pigz/pigz-2.6.tar.gz &> $projdir/src/log/pigz_wget.log
+        tar -xvzf pigz-2.6.tar.gz &> $projdir/src/log/pigz_untar.log
+        rm -f pigz-2.6.tar.gz
     fi
 
     if [[ ! -s $projdir/src/pigz/pigz ]]; then
-	cd $projdir/src/pigz-2.4
+	cd $projdir/src/pigz-2.6
 	make &> $projdir/src/log/pigz_installation.log
     fi
 
