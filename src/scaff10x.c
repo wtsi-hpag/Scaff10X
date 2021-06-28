@@ -73,6 +73,7 @@ static int run_align = 1;
 static int plot_10x = 0;
 static int min_len = 3000;
 static int sam_flag = 0;
+static int ema_flag = 0;
 
 typedef struct
 {
@@ -113,7 +114,7 @@ int main(int argc, char **argv)
     void Memory_Allocate(int arr);
     char tempa[2000],tempc[2000],syscmd[2000],workdir[2000];
     char file_tarseq[2000],file_scaff[2000],file_sfagp[2000],file_datas[2000],file_plot10x[2000],file_cover[2000],file_falgn[2000];
-    char file_read1[2000],file_read2[2000],samname[500],bamname[500],toolname[500],datname[500],lenplot10x[200];
+    char file_read1[2000],file_read2[2000],samname[500],bamname[500],toolname[500],datname[500],lenplot10x[200],htagname[100];
     int systemRet = system (syscmd);
     int systemChd = chdir(tmpdir);
     pid_t pid;
@@ -155,6 +156,7 @@ int main(int argc, char **argv)
     n_debug = 1;
 
     strcpy(toolname,"bwa");
+    strcpy(htagname,"longranger");
     nSeq=0;
     args=1;
     for(i=1;i<argc;i++)
@@ -181,6 +183,18 @@ int main(int argc, char **argv)
          run_align = 0;
          sam_flag = 2;
          sscanf(argv[++i],"%s",bamname);
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-cram"))
+       {
+         run_align = 0;
+         sam_flag = 2;
+         sscanf(argv[++i],"%s",bamname);
+         args=args+2;
+       }
+       else if(!strcmp(argv[i],"-htag"))
+       {
+         sscanf(argv[++i],"%s",htagname);
          args=args+2;
        }
        else if(!strcmp(argv[i],"-data"))
@@ -333,6 +347,8 @@ int main(int argc, char **argv)
       exit(EXIT_FAILURE);
     }
      
+    if(strcmp(htagname,"ema") == 0)
+      ema_flag = 1;
     st = argv[0];
     ed = strrchr(argv[0],'/');
     memset(tempc,'\0',2000);
@@ -560,9 +576,9 @@ int main(int argc, char **argv)
         memset(syscmd,'\0',2000);
 //          sprintf(syscmd,"%s/samtools view %s | egrep tarseq_ | awk '%s' | egrep -v '^@' > align.dat",bindir,bamname,"($2<100)&&($5>0){print $1,$2,$3,$4,$5}");
         if(n_longread ==0)
-          sprintf(syscmd,"%s/samtools view %s | awk '%s' | egrep -v '^@' > align0.dat",bindir,bamname,"($4!=0)&&($2<100)&&($5>0){print $1,$12,$2,$3,$4,$5}");
+          sprintf(syscmd,"%s/samtools view %s | awk '%s' | egrep -v 'NNNN' > align0.dat",bindir,bamname,"($4!=0)&&($2<100)&&($5>0)&&(length($12)>=21){print $1,substr($12,1,21),$2,$3,$4,$5}");
         else
-          sprintf(syscmd,"%s/samtools view %s | awk '%s' | egrep -v '^@' > align0.dat",bindir,bamname,"($4!=0)&&($2<100)&&($5>=0){print $1,$12,$2,$3,$4,$5}");
+          sprintf(syscmd,"%s/samtools view %s | awk '%s' | egrep -v 'NNNN' > align0.dat",bindir,bamname,"($4!=0)&&($2<100)&&($5>=0)&&(length($12)>=21){print $1,substr($12,1,21),$2,$3,$4,$5}");
         printf("%s\n",syscmd);
     
         RunSystemCommand(syscmd);
@@ -665,138 +681,170 @@ int main(int argc, char **argv)
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_bwa -edge 300000000 tarseq.tag align.dat align.size > try.out",bindir);
       RunSystemCommand(syscmd);
+      if(ema_flag == 0)
+      {
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"egrep ^A align.size > align2.dat_AAA");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"egrep ^A align.size > align2.dat_AAA");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"egrep ^C align.size > align2.dat_CCC");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"egrep ^C align.size > align2.dat_CCC");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"egrep ^G align.size > align2.dat_GGG");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"egrep ^G align.size > align2.dat_GGG");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"egrep ^T align.size > align2.dat_TTT");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"egrep ^T align.size > align2.dat_TTT");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.size");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align.size");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_AAA align.sort_AAA > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_AAA align.sort_AAA > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align2.dat_AAA");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align2.dat_AAA");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_CCC align.sort_CCC > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_CCC align.sort_CCC > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align2.dat_CCC");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align2.dat_CCC");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_GGG align.sort_GGG > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_GGG align.sort_GGG > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align2.dat_GGG");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align2.dat_GGG");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_TTT align.sort_TTT > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_barcode-sort align2.dat_TTT align.sort_TTT > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align2.dat_TTT");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align2.dat_TTT");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_contigs-sort align.sort_AAA align.sort2_AAA > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_contigs-sort align.sort_AAA align.sort2_AAA > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.sort_AAA");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align.sort_AAA");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_contigs-sort align.sort_CCC align.sort2_CCC > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_contigs-sort align.sort_CCC align.sort2_CCC > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.sort_CCC");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align.sort_CCC");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_contigs-sort align.sort_GGG align.sort2_GGG > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_contigs-sort align.sort_GGG align.sort2_GGG > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.sort_GGG");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align.sort_GGG");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_contigs-sort align.sort_TTT align.sort2_TTT > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_contigs-sort align.sort_TTT align.sort2_TTT > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.sort_TTT");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align.sort_TTT");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_AAA align.sort3_AAA > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_AAA align.sort3_AAA > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.sort2_AAA");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align.sort2_AAA");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_CCC align.sort3_CCC > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_CCC align.sort3_CCC > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.sort2_CCC");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align.sort2_CCC");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_GGG align.sort3_GGG > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_GGG align.sort3_GGG > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.sort2_GGG");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align.sort2_GGG");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_TTT align.sort3_TTT > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.sort2_TTT align.sort3_TTT > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.sort2_TTT");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align.sort2_TTT");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"cat align.sort3_AAA align.sort3_CCC align.sort3_GGG align.sort3_TTT > align.size4");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"cat align.sort3_AAA align.sort3_CCC align.sort3_GGG align.sort3_TTT > align.size4");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_PCRdup align.size4 align.size5 > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"%s/scaff_PCRdup align.size4 align.size5 > try.out",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.sort3_AAA align.sort3_CCC align.sort3_GGG align.sort3_TTT");
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align.sort3_AAA align.sort3_CCC align.sort3_GGG align.sort3_TTT");
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.size4 ");
+        RunSystemCommand(syscmd);
+      }
+      else
+      {
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_barcode-sort align.size align.size2 > try.out",bindir);
+        RunSystemCommand(syscmd);
 
-      memset(syscmd,'\0',2000);
-      sprintf(syscmd,"rm -rf align.size4 ",bindir);
-      RunSystemCommand(syscmd);
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_contigs-sort align.size2 align.size3 > try.out",bindir);
+        RunSystemCommand(syscmd);
+
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.size2");
+        RunSystemCommand(syscmd);
+
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_contigs-sort -break 1 align.size3 align.size4 > try.out",bindir);
+        RunSystemCommand(syscmd);
+
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.size3");
+        RunSystemCommand(syscmd);
+
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"%s/scaff_PCRdup align.size4 align.size5 > try.out",bindir);
+        RunSystemCommand(syscmd);
+
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"rm -rf align.size4 ");
+        RunSystemCommand(syscmd);
+      }
 
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_barcode-length -reads 5 align.size5 align.length-5 > try.out",bindir);
