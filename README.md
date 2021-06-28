@@ -49,7 +49,8 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
            $ /full/path/to/Scaff10X/src/scaff10X -nodes <nodes> -align <aligner> -score <score> \
 	   	 -matrix <matrix_size> -read-s1 <min_reads_s1> -read-s2 <min_reads_s2> -longread <aggressive> -gap <gap_size> \
 		 -edge <edge_len> -link-s1 <n_links_s1> -link-s2 <n_links_s2> -block <block>  \
-		 [ -data input.dat ] [ -sam input.sam ] [ -bam input.bam ] [ -plot barcode-length.png ] \
+		 [ -data input.dat ] [ -sam input.sam ] [ -bam input.bam ] -cram input.cram   \
+                 [ -htag ema ] [ -plot barcode-length.png ] \
 		 draft-assembly.fasta output_scaffolds.fasta
            
 
@@ -67,6 +68,8 @@ The genome aligner BWA (http://bio-bwa.sourceforge.net) and SMALT (http://www.sa
 	     		   0 - no aggressive for short read assembly  [ default = 1 ]
              block:        length to determine for nearest neighbours [ default = 50000 ]
              gap:          gap size in building scaffold [ default = 100 ]
+             htag:         ema - cram file from ema linked-read alignment
+                           longranger - cram file from longranger linked-read alignment 
              plot:         output image file with barcode length distributions and coverage stats 
 	     
 	       Files
