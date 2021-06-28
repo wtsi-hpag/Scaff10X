@@ -192,5 +192,10 @@ Example:
 		-gap <gap_size> -cover <cover> -ratio <ratio> \
 		scaffolds.fasta genome-BC_1.fastq.gz genome-BC_2.fastq.gz scaffolds-break.fasta scaffolds-break.name	     
 	    
+##### Haplotagging data   
 
+	   A new application has been added to process haplotagging data 
+           You need a cram file with longranger or ema linked-read alignment 
+	   Here barcode sequences with 24 bases have been converted into 16 bases
+           Please contact us when the cram file can not be read when reference is not properly set up.  
 
