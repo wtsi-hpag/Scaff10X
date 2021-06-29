@@ -194,6 +194,8 @@ Example:
 	    
 ##### Haplotagging data   
 
+	   $ /full/path/to/Scaff10X/src/scaff10x -cram /lustre/scratch117/sciops/team117/hpag/ema/htag.cram -htag ema ref.fa ema-assembly.fasta > try.out \
+
 	   A new application has been added to process haplotagging data 
            You need a cram file with longranger or ema linked-read alignment 
 	   Here barcode sequences with 24 bases have been converted into 16 bases
