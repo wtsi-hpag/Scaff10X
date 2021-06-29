@@ -194,10 +194,15 @@ Example:
 	    
 ##### Haplotagging data   
 
+	   A new application has been added to process haplotagging data:
+ 
 	   $ /full/path/to/Scaff10X/src/scaff10x -cram /lustre/scratch117/sciops/team117/hpag/ema/htag.cram -htag ema ref.fa ema-assembly.fasta > try.out \
 
-	   A new application has been added to process haplotagging data 
-           You need a cram file with longranger or ema linked-read alignment 
+           htag.cram          - a cram file with longranger or ema linked-read alignment
+           ref.fa             - the reference assembly used for alignment
+           ema-assembly.fasta - output scaffolded assembly
+
 	   Here barcode sequences with 24 bases have been converted into 16 bases
+           longranger is the default aligner
            Please contact us when the cram file can not be read when reference is not properly set up.  
 
