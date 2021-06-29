@@ -196,9 +196,11 @@ Example:
 
 	   A new application has been added to process haplotagging data:
  
-	   $ /full/path/to/Scaff10X/src/scaff10x -cram /lustre/scratch117/sciops/team117/hpag/ema/htag.cram -htag ema ref.fa ema-assembly.fasta > try.out \
+	   $ /full/path/to/Scaff10X/src/scaff10x -cram /lustre/scratch117/sciops/team117/hpag/ema/htag.cram -htag ema -plot ema-length.png 
+             ref.fa ema-assembly.fasta > try.out \
 
            htag.cram          - a cram file with longranger or ema linked-read alignment
+           ema-length.png     - barcode length distribution image
            ref.fa             - the reference assembly used for alignment
            ema-assembly.fasta - output scaffolded assembly
 
