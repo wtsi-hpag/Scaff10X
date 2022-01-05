@@ -42,7 +42,7 @@
 #define PADCHAR '-'
 #define MAX_N_BRG 50000 
 #define MAX_N_ROW 50000 
-#define Max_N_NameBase 20
+#define Max_N_NameBase 30
 static char **S_Name,**R_Name,**T_Name;
 static int *hit_locus,*readIndex,*hit_length,*ctg_index;
 
@@ -215,6 +215,7 @@ int main(int argc, char **argv)
 
 
     n_reads=i;
+    printf("reads: %d %d\n",i,nSeq);
     Mapping_Process(argv,args,n_reads);
 
     printf("Job finished for %d reads!\n",nSeq);
@@ -241,7 +242,9 @@ void Mapping_Process(char **argv,int args,int nSeq)
      }
      for(i=0;i<nSeq;i++)
         readIndex[i] = i;
+    printf("reads1: %d\n",nSeq);
      ArraySort_String(nSeq,S_Name,readIndex);
+    printf("reads2: %d\n",nSeq);
 
      if((namef = fopen(argv[args+1],"w")) == NULL)
      {
