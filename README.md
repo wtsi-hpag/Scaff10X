@@ -1,4 +1,4 @@
-# Scaff10X v4.2
+# Scaff10X v5.0
 Pipeline for scaffolding and breaking a genome assembly using 10x genomics linked-reads.
 
 Pipeline steps:
@@ -207,4 +207,16 @@ Example:
 	   Here barcode sequences with 24 bases have been converted into 16 bases
            longranger is the default aligner
            Please contact us when the cram file can not be read when reference is not properly set up.  
+
+##### Scaff10X v5.0 release note   
+	   In this new release, the scaffolding pipeline has been modified to cope with genomes > 40Gb. 
+           A new input parameter "-size" has been added. The default genome size is 10Gb.
+           With huge genomes, say ~30Gb, you need to use "-size 30.0" in order for the code to process the data more effectively.  
+
+           $ /full/path/to/Scaff10X/src/scaff10X -nodes <nodes> -align <aligner> -score <score> \
+		 -size 30.0 \
+		 [ -data input.dat ] [ -sam input.sam ] [ -bam input.bam ] -cram input.cram   \
+                 [ -htag ema ] [ -plot barcode-length.png ] \
+		 draft-assembly.fasta output_scaffolds.fasta
+           
 
