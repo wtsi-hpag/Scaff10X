@@ -64,6 +64,8 @@ static int len_block=50000;
 static int len_edges=50000;
 static int len_matrx=2000;
 static int min_edge = 5;
+static int huge_genome = 0;
+static float genome_size = 10.0;
 static int file_tag = 0;
 static int gap_len = 100;
 static int uplinks = 50;
@@ -146,6 +148,7 @@ int main(int argc, char **argv)
          printf("       gap      (100)   - gap size in building scaffold\n");
          printf("       sam      ()      - previously aligned sam file by bwa\n");
          printf("       bam      ()      - previously aligned bam file by longrange\n");
+         printf("       size     (10.0)  - roughly the size of genome, say 0.5, 1.0, 2.0 (Gb)\n");
          printf("       plot     (barcode_lengtg.png) - output image file on barcode length distributions\n");
          exit(1);
     }
@@ -224,6 +227,11 @@ int main(int argc, char **argv)
          sscanf(argv[++i],"%d",&mscore);
          args=args+2;
        }
+       else if(!strcmp(argv[i],"-size"))
+       {
+         sscanf(argv[++i],"%f",&genome_size);
+         args=args+2;
+       }
        else if(!strcmp(argv[i],"-longread"))
        {
          sscanf(argv[++i],"%d",&n_longread);
@@ -266,6 +274,7 @@ int main(int argc, char **argv)
          printf("       gap      (100)   - gap size in building scaffold\n");
          printf("       sam      ()      - previously aligned sam file by bwa\n");
          printf("       bam      ()      - previously aligned bam file by longrange\n");
+         printf("       size     (10.0)  - roughly the size of genome, say 0.5, 1.0, 2.0 (Gb)\n");
          printf("       plot     (barcode_lengtg.png) - output image file on barcode length distributions\n");
          exit(1);
        }
@@ -346,7 +355,9 @@ int main(int argc, char **argv)
       printf("System command error: chdir\n");
       exit(EXIT_FAILURE);
     }
-     
+    
+    if(genome_size > 10.0)
+      huge_genome = 1; 
     if(strcmp(htagname,"ema") == 0)
       ema_flag = 1;
     st = argv[0];
@@ -681,7 +692,14 @@ int main(int argc, char **argv)
       memset(syscmd,'\0',2000);
       sprintf(syscmd,"%s/scaff_bwa -edge 300000000 tarseq.tag align.dat align.size > try.out",bindir);
       RunSystemCommand(syscmd);
-      if(ema_flag == 0)
+      if(huge_genome)
+      {
+        memset(syscmd,'\0',2000);
+        sprintf(syscmd,"sort -k 1,1 -k 2,2 -k 3,3n align.size > align.size5");
+        RunSystemCommand(syscmd);
+
+      }
+      else if(ema_flag == 0)
       {
         memset(syscmd,'\0',2000);
         sprintf(syscmd,"egrep ^A align.size > align2.dat_AAA");
@@ -856,7 +874,7 @@ int main(int argc, char **argv)
       RunSystemCommand(syscmd);
                                         */
       memset(syscmd,'\0',2000);
-      sprintf(syscmd,"cat align.length-5 | awk '{print $1,$3}' | sort -n -k 2 > sample-bcl-5.dat",bindir);
+      sprintf(syscmd,"cat align.length-5 | awk '{print $1,$3}' | sort -n -k 2 > sample-bcl-5.dat");
       RunSystemCommand(syscmd);
 
       memset(syscmd,'\0',2000);
@@ -892,7 +910,7 @@ int main(int argc, char **argv)
       RunSystemCommand(syscmd);
 
       memset(syscmd,'\0',2000);
-      sprintf(syscmd,"sort -k 2,2 -k 5,5n align.length-5 > align.length-sort",bindir);
+      sprintf(syscmd,"sort -k 2,2 -k 5,5n align.length-5 > align.length-sort");
       RunSystemCommand(syscmd);
 
       memset(syscmd,'\0',2000);

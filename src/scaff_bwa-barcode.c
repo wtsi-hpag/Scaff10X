@@ -47,7 +47,7 @@
 #define PADCHAR '-'
 #define MAX_N_BRG 50000 
 #define MAX_N_ROW 50000 
-#define Max_N_NameBase 20
+#define Max_N_NameBase 30
 #define Max_N_Pair 100
 static char **S_Name,**R_Name1,**R_Name2,**T_Name,**cellname;
 static int *hit_index,*ctg_list,*ctg_head,*hit_length,*ctg_index,*hit_mask;
@@ -73,11 +73,11 @@ fasta *expt;
 int main(int argc, char **argv)
 {
     FILE *namef,*namef2;
-    int i,j,nSeq,args;
-    int n_contig,nseq,n_reads;
+    int args;
+    long i,j,nSeq;
+    long n_contig,nseq,n_reads;
     fasta *seq;
-    void decodeReadpair(int nSeq);
-    void Mapping_Process(char **argv,int args,int nSeq,int nRead);
+    void Mapping_Process(char **argv,int args,long nSeq,long nRead);
     char temp1[100],temp2[100],temp3[100],temp4[100],temp5[100],temp6[100],rdname[100];
     char line[2000]={0},cc[60],RC[2],*st,*ed;
     char **cmatrix(long nrl,long nrh,long ncl,long nch);
@@ -219,7 +219,7 @@ int main(int argc, char **argv)
     fclose(namef);
 
     n_reads = i;
-    printf("%d %d\n",nseq,n_reads);
+    printf("%ld %ld\n",nseq,n_reads);
     Mapping_Process(argv,args,nseq,n_reads);
 
     if((namef = fopen(argv[args+1],"r")) == NULL)
@@ -257,12 +257,13 @@ int main(int argc, char **argv)
 
 /*   subroutine to sort out read pairs    */
 /* =============================== */
-void Mapping_Process(char **argv,int args,int nSeq,int nRead)
+void Mapping_Process(char **argv,int args,long nSeq,long nRead)
 /* =============================== */
 {
      FILE *namef,*namef2;
-     int i,j,k,m,n,idd,num_rd_find;
-     int num_hits,n_contigs,n_scaffs;
+     long i,j,k,m,n,idd,num_rd_find;
+     long n_contigs;
+     int num_hits,n_scaffs;
      int stopflag,*readIndex;
      int offset;
      void ArraySort_Mix(int n, long *arr, int *brr);
@@ -271,7 +272,7 @@ void Mapping_Process(char **argv,int args,int nSeq,int nRead)
      char **cmatrix(long nrl,long nrh,long ncl,long nch);
      void ArraySort_String(int n,char **Pair_Name,int *brr);
 
-     n_contigs = 3*nSeq;          
+     n_contigs = 2*nSeq+10000;          
      if((readIndex= (int *)calloc(n_contigs,sizeof(int))) == NULL)
      {
        printf("ERROR Memory_Allocate: calloc - hit_maps\n");
@@ -313,7 +314,7 @@ void Mapping_Process(char **argv,int args,int nSeq,int nRead)
      }
 
      n_contigs = k;
-     printf("Numbers of contigs: %d %d\n",n_contigs,nSeq);
+     printf("Numbers of contigs: %ld %ld\n",n_contigs,nSeq);
 
 /*
      if(n_contigs != nSeq)

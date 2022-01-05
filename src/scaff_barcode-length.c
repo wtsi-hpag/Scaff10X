@@ -43,10 +43,10 @@
 #define PADCHAR '-'
 #define MAX_N_BRG 50000 
 #define MAX_N_ROW 50000 
-#define Max_N_NameBase 20
+#define Max_N_NameBase 30
 #define Max_N_Pair 100
 static char **S_Name,**R_Name,**R_Name2,**T_Name,**cellname;
-static int *hit_locus,*hit_index,*hit_score,*hit_length,*ctg_index;
+static int *hit_locus,*hit_score,*hit_length,*ctg_index;
 
 /* SSAS default parameters   */
 static int IMOD=0;
@@ -68,16 +68,10 @@ typedef struct
 int main(int argc, char **argv)
 {
     FILE *namef;
-    int i,j,nSeq,args;
-    int n_contig,n_reads,n_readsMaxctg,nseq;
+    long i,j,nSeq,args,nseq,n_reads;
     fasta *seq;
     void decodeReadpair(int nSeq);
-    void HashFasta_Head(int i, int nSeq);
-    void HashFasta_Table(int i, int nSeq);
-    void Search_SM(fasta *seq,int nSeq);
-    void Assemble_SM(int arr,int brr);
-    void Readname_match(fasta *seq,char **argv,int args,int nSeq,int nRead);
-    void Mapping_Process(char **argv,int args,int nSeq);
+    void Mapping_Process(char **argv,long args,long nSeq);
     void Memory_Allocate(int arr);
     char line[2000]={0},tempc1[60],cc[60],RC[5],readname[60],*st,*ed;
     char **cmatrix(long nrl,long nrh,long ncl,long nch);
@@ -167,11 +161,6 @@ int main(int argc, char **argv)
       printf("fmate: calloc - hit_locus\n");
       exit(1);
     }
-    if((hit_index = (int *)calloc(nseq,sizeof(int))) == NULL)
-    {
-      printf("fmate: calloc - hit_locus2\n");
-      exit(1);
-    }
     if((ctg_index = (int *)calloc(nseq,sizeof(int))) == NULL)
     {
       printf("fmate: calloc - hit_locus2\n");
@@ -190,8 +179,6 @@ int main(int argc, char **argv)
 
     nSeq=nseq;
     S_Name=cmatrix(0,nseq+10,0,Max_N_NameBase);
-    n_readsMaxctg=0;
-    n_contig=0;
     n_reads=0;
 
     if((namef = fopen(argv[args],"r")) == NULL)
@@ -217,11 +204,10 @@ int main(int argc, char **argv)
 
 
     n_reads=i;
-//    Readname_match(seq,argv,args,n_reads,nRead);
     Mapping_Process(argv,args,n_reads);
 //    Read_Pairs(argv,args,seq,n_reads);
 
-    printf("Job finished for %d reads!\n",nSeq);
+    printf("Job finished for %ld reads!\n",nSeq);
     return EXIT_SUCCESS;
 
 }
@@ -229,10 +215,10 @@ int main(int argc, char **argv)
 
 /*   subroutine to sort out read pairs    */
 /* =============================== */
-void Mapping_Process(char **argv,int args,int nSeq)
+void Mapping_Process(char **argv,long args,long nSeq)
 /* =============================== */
 {
-     int i,j,k,m,n;
+     long i,j,k,m,n;
      int num_hits,hit_ray[5000];
      int stopflag,*hit_maps,*hit_map2;
      int offset;

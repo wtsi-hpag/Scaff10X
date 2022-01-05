@@ -55,7 +55,7 @@ static int file_flag=2;
 static int break_flag=0;
 static int mp_score=20;
 static int nContig=0;
-static int max_len = 0;
+static long max_len = 0;
 static int read_len = 150;
 static int num_contig = 0;
 static int min_ratio = 15;
@@ -63,67 +63,14 @@ static int min_cover = 50;
 
 fasta *expt;
 
-static char rc_char[500000];
-static char rc_sub[5000];
-
-int ReverseComplement(int seqdex)
-{
-        int i,len;
-        char *tp,*dp;
-        fasta *seqp;
-
-        seqp=expt+seqdex;
-        len=seqp->length;
-        memset(rc_sub,'\0',5000);
-        dp=rc_sub;      
-        tp = seqp->data+len;
-        for(i=len;--i>=0;)
-        {
-                int tmp = *--tp;
-                if     (tmp == 't') *dp++ = 'a';
-                else if(tmp == 'g') *dp++ = 'c';
-                else if(tmp == 'c') *dp++ = 'g';
-                else if(tmp == 'a') *dp++ = 't';
-                else                *dp++ = tmp;
-        }
-        return(0);
-}
-
-
-int Reverse_Complement_Contig(char c_array[],int num_len)
-{
-        int i,len;
-        char *tp,*dp;
-
-        len=num_len;
-        dp=rc_char;
-        tp = c_array+len;
-        for(i=len;--i>=0;)
-        {
-                int tmp = *--tp;
-                if     (tmp == 't') *dp++ = 'a';
-                else if(tmp == 'g') *dp++ = 'c';
-                else if(tmp == 'c') *dp++ = 'g';
-                else if(tmp == 'a') *dp++ = 't';
-                else                *dp++ = tmp;
-        }
-        return(0);
-}
-
-
 int main(int argc, char **argv)
 {
     FILE *namef;
-    int i,j,nSeq,args,idt;
-    int n_contig,n_reads,n_readsMaxctg,nseq;
+    long i,j,nSeq,args,idt;
+    long n_contig,n_reads,n_readsMaxctg,nseq;
     fasta *seq;
     void decodeReadpair(int nSeq);
-    void HashFasta_Head(int i, int nSeq);
-    void HashFasta_Table(int i, int nSeq);
-    void Search_SM(fasta *seq,int nSeq);
-    void Assemble_SM(int arr,int brr);
-    void Readname_match(fasta *seq,char **argv,int args,int nSeq,int nRead);
-    void Barcode_Process(char **argv,int args,int nSeq);
+    void Barcode_Process(char **argv,long args,long nSeq);
     void Memory_Allocate(int arr);
     char line[2000]={0},tempc1[60],cc[60],RC[2],readname[60],*st,*ed;
     char **cmatrix(long nrl,long nrh,long ncl,long nch);
@@ -261,7 +208,7 @@ int main(int argc, char **argv)
     n_reads=i;
     Barcode_Process(argv,args,n_reads);
 
-    printf("Job finished for %d reads!\n",nSeq);
+    printf("Job finished for %ld reads!\n",nSeq);
     return EXIT_SUCCESS;
 
 }
@@ -269,10 +216,10 @@ int main(int argc, char **argv)
 
 /*   subroutine to sort out read pairs    */
 /* =============================== */
-void Barcode_Process(char **argv,int args,int nSeq)
+void Barcode_Process(char **argv,long args,long nSeq)
 /* =============================== */
 {
-     int i,j,k,m,n,g_size,max_barlen;
+     long i,j,k,m,n,g_size,max_barlen;
      int num_hits,*hit_bccover,*hit_rdcover,*hit_ctglens,*cov_genome;
      FILE *namef;
      float ave_barlen,R50,R60,R70,R80,R90;
@@ -467,7 +414,7 @@ void Barcode_Process(char **argv,int args,int nSeq)
      N70 = 0;
      N80 = 0;
      N90 = 0;
-     fprintf(namef,"Barcode length: n = %d, ave = %f, largest = %d\n",nSeq,ave_barlen,max_barlen);
+     fprintf(namef,"Barcode length: n = %ld, ave = %f, largest = %ld\n",nSeq,ave_barlen,max_barlen);
 
      for(i=0;i<nSeq;i++)
      {
@@ -477,7 +424,7 @@ void Barcode_Process(char **argv,int args,int nSeq)
           M50 = 0.5*totalBarlen/(i+1);
           R50 = M50;
           R50 = R50/hit_barlen[i];
-          fprintf(namef,"        N50 = %d, n = %d\n",hit_barlen[i],i+1);
+          fprintf(namef,"        N50 = %d, n = %ld\n",hit_barlen[i],i+1);
           N50 = 1;
         }
         if((totalHalf >= 0.6*totalBarlen)&&(N60==0))
@@ -486,7 +433,7 @@ void Barcode_Process(char **argv,int args,int nSeq)
           R60 = M60;
           R60 = hit_barlen[i]/R60;
           R60 = R60*R50;
-          fprintf(namef,"        N60 = %d, n = %d\n",hit_barlen[i],i+1);
+          fprintf(namef,"        N60 = %d, n = %ld\n",hit_barlen[i],i+1);
           N60 = 1;
         }
         if((totalHalf >= 0.7*totalBarlen)&&(N70==0))
@@ -495,7 +442,7 @@ void Barcode_Process(char **argv,int args,int nSeq)
           R70 = M70;
           R70 = hit_barlen[i]/R70;
           R70 = R70*R50;
-          fprintf(namef,"        N70 = %d, n = %d\n",hit_barlen[i],i+1);
+          fprintf(namef,"        N70 = %d, n = %ld\n",hit_barlen[i],i+1);
           N70 = 1;
         }
         if((totalHalf >= 0.8*totalBarlen)&&(N80==0))
@@ -504,7 +451,7 @@ void Barcode_Process(char **argv,int args,int nSeq)
           R80 = M80;
           R80 = hit_barlen[i]/R80;
           R80 = R80*R50;
-          fprintf(namef,"        N80 = %d, n = %d\n",hit_barlen[i],i+1);
+          fprintf(namef,"        N80 = %d, n = %ld\n",hit_barlen[i],i+1);
           N80 = 1;
         }
         if((totalHalf >= 0.9*totalBarlen)&&(N90==0))
@@ -513,20 +460,20 @@ void Barcode_Process(char **argv,int args,int nSeq)
           R90 = M90;
           R90 = hit_barlen[i]/R90;
           R90 = R90*R50;
-          fprintf(namef,"        N90 = %d, n = %d\n",hit_barlen[i],i+1);
+          fprintf(namef,"        N90 = %d, n = %ld\n",hit_barlen[i],i+1);
           N90 = 1;
           i = nSeq;
         }
      }
 
-     fprintf(namef,"        N100 = %d, n = %d\n",hit_barlen[nSeq-1],nSeq);
+     fprintf(namef,"        N100 = %d, n = %ld\n",hit_barlen[nSeq-1],nSeq);
 
-     fprintf(namef,"Barcode cover: %d\n",t_BCbases/t_SQbases);
-     fprintf(namef,"Read cover: %d\n",t_RDbases/t_SQbases);
+     fprintf(namef,"Barcode cover: %ld\n",t_BCbases/t_SQbases);
+     fprintf(namef,"Read cover: %ld\n",t_RDbases/t_SQbases);
 
      for(i=0;i<num_contig;i++)
      {
-        fprintf(namef,"Cover: tarseq_%d %d %d %d\n",i,hit_ctglens[i],hit_bccover[i],hit_rdcover[i]);
+        fprintf(namef,"Cover: tarseq_%ld %d %d %d\n",i,hit_ctglens[i],hit_bccover[i],hit_rdcover[i]);
      }
      fclose(namef);
 

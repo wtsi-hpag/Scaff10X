@@ -127,7 +127,7 @@ int main(int argc, char **argv)
     if(argc < 2)
     {
       printf("Usage: %s <input sam file <out_sam_match file> \n",argv[0]);
-      printf("samtools view your.bam | awk '{print $1,$2,$3,$4,$5}' > sam_match_file \n",argv[0]);
+      printf("samtools view your.bam | awk '{print $1,$2,$3,$4,$5}' > sam_match_file \n");
       
       exit(1);
     }

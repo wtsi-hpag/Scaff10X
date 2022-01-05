@@ -98,7 +98,7 @@ int main(int argc, char **argv)
 
     if(argc < 2)
     {
-         printf("Usage: <Input_read_file> <Output_read1> <Output_read2>\n",argv[0]);
+         printf("Usage: <Input_read_file> <Output_read1> <Output_read2>\n");
          printf("q1=/lustre/scratch117/sciops/team117/hpag/zn1/project/fish/reads/test/22047_4_AACCGTAA_S16_L004_R1_001.fastq.gz\n");
          printf("q2=/lustre/scratch117/sciops/team117/hpag/zn1/project/fish/reads/test/22047_4_AACCGTAA_S16_L004_R2_001.fastq.gz\n");
          printf("...\n");
@@ -121,7 +121,7 @@ int main(int argc, char **argv)
        }
        else if(!strcmp(argv[i],"-help"))
        {
-         printf("Usage: <Input_read_file> <Output_read1> <Output_read2>\n",argv[0]);
+         printf("Usage: <Input_read_file> <Output_read1> <Output_read2>\n");
          printf("q1=/lustre/scratch117/sciops/team117/hpag/zn1/project/fish/reads/test/22047_4_AACCGTAA_S16_L004_R1_001.fastq.gz\n");
          printf("q2=/lustre/scratch117/sciops/team117/hpag/zn1/project/fish/reads/test/22047_4_AACCGTAA_S16_L004_R2_001.fastq.gz\n");
          printf("...\n");

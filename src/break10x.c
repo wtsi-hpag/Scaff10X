@@ -836,7 +836,7 @@ int main(int argc, char **argv)
 /* end molecular length and barcode number distributions  */
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"sort -k 2,2 -k 5,5n align.length-5 > align.length-sort",bindir);
+    sprintf(syscmd,"sort -k 2,2 -k 5,5n align.length-5 > align.length-sort");
     if(system(syscmd) == -1)
     {
 //        printf("System command error:\n);
@@ -850,14 +850,14 @@ int main(int argc, char **argv)
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scaff_superAGP tarseq.fastq tarseq.agp > break.out2",bindir,mscore,min_cover,min_ratio);
+    sprintf(syscmd,"%s/scaff_superAGP tarseq.fastq tarseq.agp > break.out2",bindir);
     if(system(syscmd) == -1)
     {
 //        printf("System command error:\n);
     }
 
     memset(syscmd,'\0',2000);
-    sprintf(syscmd,"cat break.dat tarseq.agp | sort -k 2,2n -k 3,3n > break-all.dat",bindir,mscore,min_cover);
+    sprintf(syscmd,"cat break.dat tarseq.agp | sort -k 2,2n -k 3,3n > break-all.dat");
     if(system(syscmd) == -1)
     {
 //        printf("System command error:\n);

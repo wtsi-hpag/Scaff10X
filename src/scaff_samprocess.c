@@ -140,7 +140,7 @@ int main(int argc, char **argv)
     if(argc < 2)
     {
       printf("Usage: %s [-clip 100] [-match 20] [-depth 10] <sam_match_file>\n",argv[0]);
-      printf("samtools view your.bam | awk '{print $1,$3,$4,$6,$10}' > sam_match_file \n",argv[0]);
+      printf("samtools view your.bam | awk '{print $1,$3,$4,$6,$10}' > sam_match_file \n");
       
       exit(1);
     }
