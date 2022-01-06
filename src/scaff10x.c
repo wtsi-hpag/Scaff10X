@@ -619,14 +619,22 @@ int main(int argc, char **argv)
     sprintf(syscmd,"%s/scaff_bwa -edge %d tarseq.tag align.dat align2.dat > try.out",bindir,len_edges);
     RunSystemCommand(syscmd);
     
-    memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scaff_barcode-sort align2.dat align.sort > try.out",bindir);
-    RunSystemCommand(syscmd);
+    if(huge_genome)
+    {
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"sort -k 1,1 -k 2,2 align2.dat > align.sort2");
+      RunSystemCommand(syscmd);
+    }
+    else
+    {
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_barcode-sort align2.dat align.sort > try.out",bindir);
+      RunSystemCommand(syscmd);
 
-    memset(syscmd,'\0',2000);
-    sprintf(syscmd,"%s/scaff_contigs-sort align.sort align.sort2 > try.out",bindir);
-    RunSystemCommand(syscmd);
-
+      memset(syscmd,'\0',2000);
+      sprintf(syscmd,"%s/scaff_contigs-sort align.sort align.sort2 > try.out",bindir);
+      RunSystemCommand(syscmd);
+    }
     memset(syscmd,'\0',2000);
     sprintf(syscmd,"%s/scaff_mapping-sort -block %d -reads %d -score %d align.sort2 barcodes.clust > try.out",bindir,len_block,num1_reads,mscore);
 
@@ -697,7 +705,6 @@ int main(int argc, char **argv)
         memset(syscmd,'\0',2000);
         sprintf(syscmd,"sort -k 1,1 -k 2,2 -k 3,3n align.size > align.size5");
         RunSystemCommand(syscmd);
-
       }
       else if(ema_flag == 0)
       {
