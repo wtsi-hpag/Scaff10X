@@ -151,17 +151,17 @@ int main(int argc, char **argv)
     nseq=0;
     if((namef = fopen(argv[args],"r")) == NULL)
     {
-      printf("ERROR main:: alignment file 2 \n");
+      perror("ERROR main:: input read_1 file");
       exit(1);
     }
     if((namef2 = fopen(argv[args+1],"w")) == NULL)
     {
-      printf("ERROR main:: alignment file 2 \n");
+      perror("ERROR main:: output read_1 file");
       exit(1);
     }
     if((namef3 = fopen(argv[args+2],"w")) == NULL)
     {
-      printf("ERROR main:: alignment file 2 \n");
+      perror("ERROR main:: output name_1 file");
       exit(1);
     }
 
