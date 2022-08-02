@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#new comment on install.sh
 
 projdir=`pwd`
 
